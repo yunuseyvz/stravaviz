@@ -1,0 +1,24 @@
+image: "node:16-alpine"
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - yarn install --frozen-lockfile --check-files --non-interactive
+    - yarn build
+  artifacts:
+    paths:
+      - public
+
+pages:
+  stage: deploy
+  script:
+    - echo 'Pages deployment job'
+  artifacts:
+    paths:
+      - public
+  only:
+  - main
