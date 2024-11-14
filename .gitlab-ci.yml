@@ -1,0 +1,16 @@
+image: node:20.12.2-alpine3.19
+
+stages:
+  - build
+
+pages:
+  stage: build
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - out
+  publish: out
+  only:
+    - main
