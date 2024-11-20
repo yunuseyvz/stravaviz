@@ -4,7 +4,7 @@ build:
   stage: build
   cache:
     paths:
-      - node_modules/
+      - $CI_PROJECT_DIR/*
   script:
     - npm install
     - npm run build
@@ -16,7 +16,7 @@ test:
   stage: test
   cache:
     paths:
-      - node_modules/
+      - $CI_PROJECT_DIR/*
     policy: pull
   script:
     - npm start
@@ -31,6 +31,6 @@ pages:
     - mv build public
   artifacts:
     paths:
-      - public
+      - $CI_PROJECT_DIR/*
   only:
     - main
