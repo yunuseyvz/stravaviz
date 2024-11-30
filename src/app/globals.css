@@ -2,22 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #14131f;
-  --secondary: #d5d2d2;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #14131f;
-    --foreground: #ededed;
-    --secondary : #222033;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans);
+}
+
+@layer base {
+  :root {
+    --background: 210 100% 97%; 
+    --foreground: 220 15% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 10%;
+
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 50% 90%;
+    --secondary-foreground: 220 15% 10%;
+
+    --muted: 210 50% 95%;
+    --muted-foreground: 220 15% 40%;
+
+    --accent: 210 50% 95%;
+    --accent-foreground: 220 15% 40%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 50% 90%;
+    --input: 210 50% 90%;
+    --ring: 210 100% 50%;
+    --radius: 0.5rem;
+
+    --scrollbar-track-color: transparent;
+    --scrollbar-thumb-color: #949494;
+    --scrollbar-thumb-hover-color: #555;
+  }
+
+  .dark {
+    --background: 220 15% 10%;
+    --foreground: 0 0% 100%;
+
+    --card: 220 15% 15%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 20%;
+    --muted-foreground: 210 50% 80%;
+
+    --accent: 220 15% 20%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 210 100% 50%;
+
+    --scrollbar-track-color: transparent;
+    --scrollbar-thumb-color: #555;
+    --scrollbar-thumb-hover-color: #888;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-color); 
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color); 
+  border-radius: 10px; 
+  border: 3px solid var(--scrollbar-track-color); 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover-color); 
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent; 
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
