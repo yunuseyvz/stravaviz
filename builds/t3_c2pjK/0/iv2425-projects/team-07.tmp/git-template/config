@@ -1,0 +1,8 @@
+[init]
+	defaultBranch = none
+[fetch]
+	recurseSubmodules = false
+[transfer]
+	bundleURI = true
+[http "https://gitlab.lrz.de"]
+	sslCAInfo = /home/yunus/team-07/builds/t3_c2pjK/0/iv2425-projects/team-07.tmp/CI_SERVER_TLS_CA_FILE
