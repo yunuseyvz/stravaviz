@@ -90,6 +90,11 @@ export const Navbar = () => {
               ))}
             </NavigationMenuContent>
           </NavigationMenuItem>
+          <NavigationMenuLink asChild>
+              <Link href="/about" className="text-base px-2 flex items-center hover:text-blue-500">
+                About
+              </Link>
+            </NavigationMenuLink>
         </NavigationMenuList>
       </NavigationMenu>
 
