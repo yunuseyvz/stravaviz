@@ -4,9 +4,13 @@ import D3Graph from "../components/graph";
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <D3Graph />
-      </main>
+      <header className="row-start-1 flex flex-col items-center gap-4 mt-8">
+        <h1 className="text-4xl font-bold">Welcome</h1>
+        <p className="text-lg text-center max-w-2xl">
+          Explore insightful visualizations of Strava data, created as part of our university project for InfoVis.
+        </p>
+      </header>
+      
       <footer className="row-start-3 flex justify-between w-full px-6">
         <span>IV Gruppe 07 WS 2024/2025</span>
       </footer>
