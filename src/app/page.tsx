@@ -1,5 +1,6 @@
 import Image from "next/image";
 import D3Graph from "../components/graph";
+import BlurFade from "../components/ui/blur-fade";
 
 export default function Home() {
   return (
@@ -10,10 +11,10 @@ export default function Home() {
           Explore insightful visualizations of Strava data, created as part of our university project for InfoVis.
         </p>
       </header>
-      
       <footer className="row-start-3 flex justify-between w-full px-6">
         <span>IV Gruppe 07 WS 2024/2025</span>
       </footer>
+      
     </div>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronsDown, Github, Menu, ChevronDown, Home, BarChart2, PieChart, Gitlab, Activity, Heart, Calendar } from "lucide-react";
+import { ChevronsDown, Github, Menu, ChevronDown, Home, BarChart2, PieChart, Gitlab, Activity, Heart, Calendar, Info } from "lucide-react";
 import React from "react";
 import {
   Sheet,
@@ -90,11 +90,6 @@ export const Navbar = () => {
               ))}
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuLink asChild>
-              <Link href="/about" className="text-base px-2 flex items-center hover:text-blue-500">
-                About
-              </Link>
-            </NavigationMenuLink>
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -154,13 +149,21 @@ export const Navbar = () => {
       <div className="hidden lg:flex">
         <ToggleTheme />
 
-        <Button asChild size="sm" variant="ghost" aria-label="View on GitHub">
+        <Button asChild size="sm" variant="ghost" aria-label="View on GitLab">
           <Link
             aria-label="View on GitLab"
             href="https://gitlab.lrz.de/iv2425-projects/team-07"
             target="_blank"
           >
             <Gitlab className="size-5" />
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="ghost" aria-label="View on GitHub">
+          <Link
+            aria-label="About"
+            href="/about"
+          >
+            <Info className="size-5" />
           </Link>
         </Button>
       </div>
