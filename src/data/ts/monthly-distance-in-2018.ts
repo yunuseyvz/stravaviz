@@ -1,6 +1,6 @@
 export const monthlyDistanceIn2018 = [
   {
-    "x": 4,
+    "x": "Apr",
     "y": 5
   }
 ];

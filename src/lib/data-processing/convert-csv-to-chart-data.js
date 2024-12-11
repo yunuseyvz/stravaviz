@@ -16,7 +16,7 @@ var convertCsvToChartData = function (filename, headers, year) {
         }
         else {
             var formattedOutput = output.map(function (row) { return ({
-                x: parseInt(row.month, 10),
+                x: row.month,
                 y: parseInt(row.distance, 10)
             }); });
             var outputFilePath = "".concat(pathPrefix, "/ts/").concat(filename.replace('.csv', ''), ".ts");

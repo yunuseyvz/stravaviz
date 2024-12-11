@@ -14,7 +14,7 @@ export const convertCsvToChartData = (filename: string, headers: ColumnOption[],
             console.error(error);
         } else {
             const formattedOutput = output.map((row: any) => ({
-                x: parseInt(row.month, 10),
+                x: row.month,
                 y: parseInt(row.distance, 10)
             }));
 

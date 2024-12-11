@@ -13,6 +13,9 @@ date = date.str.split(",").str[0]
 month = date.str.split(".").str[1].astype(int)
 year = date.str.split(".").str[2].astype(int)
 
+month_abbr = {i: calendar.month_abbr[i] for i in range(1, 13)}
+month = month.map(month_abbr)
+
 distancePerDate = pd.DataFrame({"month": month, "year": year, "distance": distance})
 
 def getMonthlyDistancePerYear(data: pd.DataFrame, year: int):
