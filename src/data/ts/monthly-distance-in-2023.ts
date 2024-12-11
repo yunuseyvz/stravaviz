@@ -1,4 +1,4 @@
-export const chartData = [
+export const monthlyDistanceIn2023 = [
   {
     "x": 1,
     "y": 242

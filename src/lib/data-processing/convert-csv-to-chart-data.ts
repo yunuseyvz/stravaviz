@@ -3,7 +3,7 @@ import { ColumnOption, parse } from 'csv-parse';
 
 const pathPrefix = '../../data/';
 
-export const convertCsvToChartData = (filename: string, headers: ColumnOption[]) => {
+export const convertCsvToChartData = (filename: string, headers: ColumnOption[], year: number) => {
     const data = fs.readFileSync(`${pathPrefix}/csv/${filename}`, 'utf8');
     parse(data, {
         delimiter: ',',
@@ -19,11 +19,11 @@ export const convertCsvToChartData = (filename: string, headers: ColumnOption[])
             }));
 
             const outputFilePath = `${pathPrefix}/ts/${filename.replace('.csv', '')}.ts`;
-            const fileContent = `export const chartData = ${JSON.stringify(formattedOutput, null, 2)};`;
+            const fileContent = `export const monthlyDistanceIn${year} = ${JSON.stringify(formattedOutput, null, 2)};`;
             fs.writeFileSync(outputFilePath, fileContent, 'utf8');
         }
     });
 }
 for (let year = 2017; year <= 2024; year++) {
-    convertCsvToChartData(`monthly-distance-in-${year}.csv`, ['month', 'distance']);
+    convertCsvToChartData(`monthly-distance-in-${year}.csv`, ['month', 'distance'], year);
 }
