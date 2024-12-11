@@ -13,16 +13,17 @@ export const convertCsvToChartData = (filename: string, headers: ColumnOption[])
         if (error) {
             console.error(error);
         } else {
-            output = output.map((row: any) => ({
-                ...row,
-                distance: parseInt(row.distance, 10)
+            const formattedOutput = output.map((row: any) => ({
+                x: parseInt(row.month, 10),
+                y: parseInt(row.distance, 10)
             }));
 
             const outputFilePath = `${pathPrefix}/ts/${filename.replace('.csv', '')}.ts`;
-            const fileContent = `export const chartData = ${JSON.stringify(output, null, 2)};`;
+            const fileContent = `export const chartData = ${JSON.stringify(formattedOutput, null, 2)};`;
             fs.writeFileSync(outputFilePath, fileContent, 'utf8');
         }
     });
 }
-
-convertCsvToChartData('monthly-distance-in-2017.csv', ['month', 'distance']);
+for (let year = 2017; year <= 2024; year++) {
+    convertCsvToChartData(`monthly-distance-in-${year}.csv`, ['month', 'distance']);
+}
