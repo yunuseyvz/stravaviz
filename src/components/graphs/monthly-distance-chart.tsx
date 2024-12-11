@@ -41,7 +41,6 @@ const MonthlyDistanceChart = () => {
     { x: 7, y: 3 }
   ];
 
-
   return (
     <VictoryChart 
     containerComponent={<VictoryVoronoiContainer/>}
