@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "../components/navbar";
 import { ThemeProvider } from "../components/theme-provider";
 import BlurFade from "../components/ui/blur-fade";
+import { ReactNode } from "react";
+import { UserProvider } from "../context/UserContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,16 +33,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-          >
-        <Navbar />
-        <BlurFade>
-        {children}
-        </BlurFade>
-        </ThemeProvider>
+        <UserProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Navbar />
+            <BlurFade>
+              {children}
+            </BlurFade>
+          </ThemeProvider>
+        </UserProvider>
       </body>
     </html>
   );

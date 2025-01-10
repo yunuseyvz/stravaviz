@@ -1,5 +1,5 @@
 "use client";
-import { ChevronsDown, Github, Menu, ChevronDown, Home, BarChart2, PieChart, Gitlab, Activity, Heart, Calendar, Info } from "lucide-react";
+import { ChevronsDown, Github, Menu, ChevronDown, Home, BarChart2, PieChart, Gitlab, Activity, Heart, Calendar, Info, MapPin } from "lucide-react";
 import React from "react";
 import {
   Sheet,
@@ -90,6 +90,13 @@ export const Navbar = () => {
               ))}
             </NavigationMenuContent>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="/map" className="text-base px-2 flex items-center hover:text-blue-500">
+                Map
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -134,6 +141,17 @@ export const Navbar = () => {
                     </Link>
                   </Button>
                 ))}
+                <Button
+                  onClick={() => setIsOpen(false)}
+                  asChild
+                  variant="ghost"
+                  className="justify-start text-base flex items-center"
+                >
+                  <Link href="/map">
+                    <MapPin />
+                    Map
+                  </Link>
+                </Button>
               </div>
             </div>
 
