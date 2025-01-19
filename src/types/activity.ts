@@ -1,20 +1,92 @@
-// types/activity.ts
-
 export interface Activity {
-    "Aktivitäts-ID": string;
-    "Aktivitätsdatum": string; // We'll parse this into a Date object later
-    "Name der Aktivität": string;
-    "Aktivitätsart": string;
-    "Distanz": number;
-    "Höhenzunahme": number;
-    "Durchschnittliche Geschwindigkeit": number;
-    "Kalorien": number;
-    // Add other fields as needed, following the same pattern
-    // For optional fields, use the `?` modifier
-    "Max. Herzfrequenz"?: number;
-    "Durchschnittliche Herzfrequenz"?: number;
-    "Max. Steigung"?: number;
-    "Durchschnittliche Steigung"?: number;
-    // ... continue for other fields
-  }
-  
+  activityId: string; // Now required
+  activityDate: string; // ISO string after parsing
+  activityName: string;
+  activityType: string;
+  activityDescription?: string;
+  elapsedTime?: number;
+  distance: number;
+  maxHeartRate?: number;
+  relativeEffort?: number;
+  commute?: number;
+  activityPrivateNote?: string;
+  activityGear?: string;
+  filename: string;
+  athleteWeight?: number;
+  bikeWeight?: number;
+  movingTime?: number;
+  maxSpeed: number;
+  averageSpeed: number;
+  elevationGain: number;
+  elevationLoss: number;
+  elevationLow: number;
+  elevationHigh: number;
+  maxGrade?: number;
+  averageGrade?: number;
+  averagePositiveGrade?: number;
+  averageNegativeGrade?: number;
+  maxCadence?: number;
+  averageCadence?: number;
+  averageHeartRate?: number;
+  maxWatts?: number;
+  averageWatts?: number;
+  calories: number;
+  maxTemperature?: number;
+  averageTemperature?: number;
+  totalWork?: number;
+  numberOfRuns?: number;
+  uphillTime?: number;
+  downhillTime?: number;
+  otherTime?: number;
+  perceivedExertion?: string;
+  type?: string;
+  startTime?: string;
+  weightedAveragePower?: number;
+  powerCount?: number;
+  preferPerceivedExertion?: boolean;
+  perceivedRelativeEffort?: number;
+  totalWeightLifted?: number;
+  fromUpload: number;
+  gradeAdjustedDistance?: number;
+  weatherObservationTime?: string;
+  weatherCondition?: string;
+  weatherTemperature?: number;
+  apparentTemperature?: number;
+  dewpoint?: number;
+  humidity?: number;
+  weatherPressure?: number;
+  windSpeed?: number;
+  windGust?: number;
+  windBearing?: string;
+  precipitationIntensity?: number;
+  sunriseTime?: string;
+  sunsetTime?: string;
+  moonPhase?: string;
+  bike?: string;
+  gear?: string;
+  precipitationProbability?: number;
+  precipitationType?: string;
+  cloudCover?: string;
+  weatherVisibility?: number;
+  uvIndex?: number;
+  weatherOzone?: number;
+  jumpCount?: number;
+  totalGrit?: number;
+  averageFlow?: number;
+  flagged: number;
+  averageElapsedSpeed?: number;
+  dirtDistance?: number;
+  newlyExploredDistance?: number;
+  newlyExploredDirtDistance?: number;
+  activityCount?: number;
+  totalSteps: number;
+  carbonSaved?: number;
+  poolLength?: number;
+  trainingLoad?: number;
+  intensity?: number;
+  averageGradeAdjustedPace?: number;
+  timerTime?: number;
+  totalCycles?: number;
+  media?: string[];
+  athleteId?: string; // Added for reference in API responses
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   VictoryAxis,
   VictoryChart,
@@ -10,85 +10,167 @@ import {
   VictoryVoronoiContainer,
 } from "victory";
 import { Checkbox, FormControlLabel } from "@mui/material";
-import { monthlyDistanceIn2017 } from "../../data/ts/monthly-distance-in-2017";
-import { monthlyDistanceIn2018 } from "../../data/ts/monthly-distance-in-2018";
-import { monthlyDistanceIn2019 } from "../../data/ts/monthly-distance-in-2019";
-import { monthlyDistanceIn2020 } from "../../data/ts/monthly-distance-in-2020";
-import { monthlyDistanceIn2021 } from "../../data/ts/monthly-distance-in-2021";
-import { monthlyDistanceIn2022 } from "../../data/ts/monthly-distance-in-2022";
-import { monthlyDistanceIn2023 } from "../../data/ts/monthly-distance-in-2023";
-import { monthlyDistanceIn2024 } from "../../data/ts/monthly-distance-in-2024";
+import { useUser } from "@/context/UserContext"; // Adjust import as needed
+
+// Your original color arrays
+const scatterColorPerYear = [
+  { year: 2017, color: "#f43134" },
+  { year: 2018, color: "#f26b1f" },
+  { year: 2019, color: "#f3a016" },
+  { year: 2020, color: "#f5d93f" },
+  { year: 2021, color: "#9ad165" },
+  { year: 2022, color: "#31ba9b" },
+  { year: 2023, color: "#3a7c97" },
+  { year: 2024, color: "#5b4791" },
+];
+
+const lineColorPerYear = [
+  { year: 2017, color: "#fbadae" },
+  { year: 2018, color: "#fac4a5" },
+  { year: 2019, color: "#fad9a2" },
+  { year: 2020, color: "#fbf0b2" },
+  { year: 2021, color: "#d7edc1" },
+  { year: 2022, color: "#ade3d7" },
+  { year: 2023, color: "#b0cbd5" },
+  { year: 2024, color: "#bdb5d3" },
+];
 
 const MonthlyDistanceChart = () => {
-  const monthlyDistancesPerYear = [
-    { year: 2017, data: monthlyDistanceIn2017 },
-    { year: 2018, data: monthlyDistanceIn2018 },
-    { year: 2019, data: monthlyDistanceIn2019 },
-    { year: 2020, data: monthlyDistanceIn2020 },
-    { year: 2021, data: monthlyDistanceIn2021 },
-    { year: 2022, data: monthlyDistanceIn2022 },
-    { year: 2023, data: monthlyDistanceIn2023 },
-    { year: 2024, data: monthlyDistanceIn2024 },
-  ];
+  const { selectedUser } = useUser(); 
+  const [dataPerYear, setDataPerYear] = useState<
+    { year: number; data: { x: string; y: number }[] }[]
+  >([]);
+  const [visibleYears, setVisibleYears] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const scatterColorPerYear = [
-    { year: 2017, color: "#f43134" },
-    { year: 2018, color: "#f26b1f" },
-    { year: 2019, color: "#f3a016" },
-    { year: 2020, color: "#f5d93f" },
-    { year: 2021, color: "#9ad165" },
-    { year: 2022, color: "#31ba9b" },
-    { year: 2023, color: "#3a7c97" },
-    { year: 2024, color: "#5b4791" },
-  ];
+  useEffect(() => {
+    if (!selectedUser) return;
+    fetchMonthlyDistances(selectedUser.StravaId);
+  }, [selectedUser]);
 
-  const lineColorPerYear = [
-    { year: 2017, color: "#fbadae" },
-    { year: 2018, color: "#fac4a5" },
-    { year: 2019, color: "#fad9a2" },
-    { year: 2020, color: "#fbf0b2" },
-    { year: 2021, color: "#d7edc1" },
-    { year: 2022, color: "#ade3d7" },
-    { year: 2023, color: "#b0cbd5" },
-    { year: 2024, color: "#bdb5d3" },
-  ];
+  async function fetchMonthlyDistances(athleteId: string) {
+    try {
+      setIsLoading(true);
 
-  const [visibleYears, setVisibleYears] = useState(
-    monthlyDistancesPerYear.map(({ year }) => year)
-  );
+      // For example, we want data from Jan 2017 through Dec 2024
+      const startYear = 2017;
+      const endYear = 2024;
+      const startDate = `${startYear}-01-01`;
+      const endDate = `${endYear}-12-31`;
 
+      // GET /api/athletes/:athleteId/metrics?metric=distance&startDate=...&endDate=...
+      const url = `/api/athletes/${athleteId}/metrics?metric=distance&startDate=${startDate}&endDate=${endDate}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Request failed with status: ${response.status}`);
+      }
+
+      // The shape: { metric: "distance", aggregatedData: [{ month: "YYYY-MM", totalDistance: number }, ...] }
+      const result = await response.json();
+
+      // Transform into the shape: 
+      // [ { year: 2017, data: [ { x: "Jan", y: 1.23 }, ... ] }, ... ]
+      const transformed = transformAggregatedData(result.aggregatedData);
+
+      setDataPerYear(transformed);
+      // By default, set all years to visible
+      setVisibleYears(transformed.map(({ year }) => year));
+    } catch (error) {
+      console.error("Error fetching monthly distances:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Convert data from the endpoint into year-based arrays for Victory
+  function transformAggregatedData(
+    aggregatedData: { month: string; totalDistance: number }[]
+  ) {
+    // dataMap: { "2017": [{ x: "Jan", y: 123 }, ...], "2018": [...], ... }
+    const dataMap: Record<string, { x: string; y: number }[]> = {};
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    aggregatedData.forEach((item) => {
+      // item.month is "YYYY-MM"
+      const [yearStr, monStr] = item.month.split("-");
+      const monthIndex = parseInt(monStr, 10) - 1;
+      const monthLabel = monthNames[monthIndex] || "???";
+
+      // Convert meters to kilometers
+      const distanceInKm = item.totalDistance / 1000;
+
+      if (!dataMap[yearStr]) {
+        dataMap[yearStr] = [];
+      }
+      dataMap[yearStr].push({
+        x: monthLabel,
+        y: distanceInKm,
+      });
+    });
+
+    // Create a sorted array from the year keys
+    return Object.keys(dataMap)
+      .sort()
+      .map((yearStr) => ({
+        year: parseInt(yearStr, 10),
+        data: dataMap[yearStr],
+      }));
+  }
+
+  // Find the highest distance across all data for y-axis maximum
   function getMaxMonthlyDistance() {
-    const allMonthlyDistances = [
-      monthlyDistanceIn2017,
-      monthlyDistanceIn2018,
-      monthlyDistanceIn2019,
-      monthlyDistanceIn2020,
-      monthlyDistanceIn2021,
-      monthlyDistanceIn2022,
-      monthlyDistanceIn2023,
-      monthlyDistanceIn2024,
-    ].flat();
-
-    return Math.max(...allMonthlyDistances.map((dataPoint) => dataPoint.y));
+    let maxVal = 0;
+    dataPerYear.forEach(({ data }) => {
+      data.forEach((dp) => {
+        if (dp.y > maxVal) maxVal = dp.y;
+      });
+    });
+    return maxVal;
   }
 
   const handleCheckboxChange = (year: number) => {
-    setVisibleYears((prevVisibleYears) =>
-      prevVisibleYears.includes(year)
-        ? prevVisibleYears.filter((y) => y !== year)
-        : [...prevVisibleYears, year]
+    setVisibleYears((prev) =>
+      prev.includes(year) ? prev.filter((y) => y !== year) : [...prev, year]
     );
   };
 
-  const labelComponent = <VictoryTooltip style={{ fontSize: 7 }} />;
-  const pointSize = 2;
-  const activePointSize = 3;
-
+  // Prepare y-axis ticks
+  const maxY = getMaxMonthlyDistance();
+  const increment = 250; // Adjust based on typical monthly distances
   const yTickValues = Array.from(
-    { length: Math.ceil(getMaxMonthlyDistance() / 250) + 1 },
-    (_, i) => i * 250
+    { length: Math.ceil(maxY / increment) + 1 },
+    (_, i) => i * increment
   );
-  const xTickValues = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  // Standard x-axis months
+  const xTickValues = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const tickStyle = {
     tickLabels: {
@@ -100,23 +182,41 @@ const MonthlyDistanceChart = () => {
     },
   };
 
+  // Victory components
+  const labelComponent = <VictoryTooltip style={{ fontSize: 7 }} />;
+  const pointSize = 2;
+  const activePointSize = 3;
+
   return (
     <div className="flex flex-col items-center">
-      <VictoryChart containerComponent={<VictoryVoronoiContainer />} theme={VictoryTheme.clean}>
+      {isLoading && <p>Loading data...</p>}
+
+      <VictoryChart
+        containerComponent={<VictoryVoronoiContainer />}
+        theme={VictoryTheme.clean}
+      >
         <VictoryAxis dependentAxis tickValues={yTickValues} style={tickStyle} />
         <VictoryAxis tickValues={xTickValues} style={tickStyle} />
-        {monthlyDistancesPerYear.map(({ year, data }) =>
+
+        {dataPerYear.map(({ year, data }) =>
           visibleYears.includes(year) ? (
             <VictoryGroup
               key={year}
-              labels={({ datum }) => `${datum.x}: ${datum.y} km`}
+              labels={({ datum }) => `${datum.x}: ${datum.y.toFixed(2)} km`}
               labelComponent={labelComponent}
               data={data}
-              color={scatterColorPerYear.find((colorData) => colorData.year === year)?.color}
+              color={
+                scatterColorPerYear.find((colorData) => colorData.year === year)
+                  ?.color
+              }
             >
               <VictoryLine
                 style={{
-                  data: { stroke: lineColorPerYear.find((colorData) => colorData.year === year)?.color },
+                  data: {
+                    stroke: lineColorPerYear.find(
+                      (colorData) => colorData.year === year
+                    )?.color,
+                  },
                 }}
               />
               <VictoryScatter
@@ -126,28 +226,38 @@ const MonthlyDistanceChart = () => {
           ) : null
         )}
       </VictoryChart>
-      <div className="flex justify-center -mt-14 z-40">
-        {monthlyDistancesPerYear.map(({ year }) => (
-          <div 
-            className="mx-2 px-2 rounded-md shadow-sm" 
-            style={{ backgroundColor: lineColorPerYear.find((colorData: any) => colorData.year === year)?.color}}  
+
+      {/* Checkboxes to toggle each year's visibility */}
+      <div className="flex justify-center -mt-14 z-40 flex-wrap">
+        {dataPerYear.map(({ year }) => (
+          <div
+            className="mx-2 px-2 rounded-md shadow-sm"
+            style={{
+              backgroundColor: lineColorPerYear.find(
+                (colorData) => colorData.year === year
+              )?.color,
+            }}
             key={year}
           >
-          <FormControlLabel
-            control = {
-              <Checkbox
-                onChange={() => handleCheckboxChange(year)}
-                checked={visibleYears.includes(year)}
-                sx = {{
-                  color: scatterColorPerYear.find((colorData: any) => colorData.year === year)?.color,
-                  '&.Mui-checked': {
-                    color: scatterColorPerYear.find((colorData: any) => colorData.year === year)?.color,
-                  },
-                }}
-              />
-            }
-            label = {year}
-          />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  onChange={() => handleCheckboxChange(year)}
+                  checked={visibleYears.includes(year)}
+                  sx={{
+                    color: scatterColorPerYear.find(
+                      (colorData) => colorData.year === year
+                    )?.color,
+                    "&.Mui-checked": {
+                      color: scatterColorPerYear.find(
+                        (colorData) => colorData.year === year
+                      )?.color,
+                    },
+                  }}
+                />
+              }
+              label={year}
+            />
           </div>
         ))}
       </div>
