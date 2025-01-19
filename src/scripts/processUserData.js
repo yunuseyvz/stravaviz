@@ -16,7 +16,7 @@ if (!StravaId) {
 }
 
 // Define paths based on StravaId
-const userRawDir = path.join(__dirname, '..', 'data', 'users', 'raw', `strava-export_${StravaId}`);
+const userRawDir = path.join(__dirname, '..', 'data', 'users', 'raw', `Strava-export_${StravaId}`);
 const userProcessedDir = path.join(__dirname, '..', 'data', 'users', 'processed', StravaId);
 
 // Function to clean the processed directory
