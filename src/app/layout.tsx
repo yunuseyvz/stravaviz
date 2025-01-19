@@ -1,9 +1,14 @@
+// app/layout.tsx
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "../components/navbar";
 import { ThemeProvider } from "../components/theme-provider";
 import BlurFade from "../components/ui/blur-fade";
+import { ReactNode } from "react";
+import { UserProvider } from "../context/UserContext";
+import Footer from "../components/footer"; // Import the Footer component
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,18 +34,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-          >
-        <Navbar />
-        <BlurFade>
-        {children}
-        </BlurFade>
-        </ThemeProvider>
+        <UserProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Navbar />
+            <BlurFade>
+              {children}
+            </BlurFade>
+            <Footer /> {/* Add the Footer here */}
+          </ThemeProvider>
+        </UserProvider>
       </body>
     </html>
   );
