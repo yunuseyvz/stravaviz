@@ -6,8 +6,8 @@ import { loadActivities } from '../../../../../lib/dataLoader';
 import { Activity } from '../../../../../types/activity';
 import { isValidDate } from '../../../../../lib/validators';
 
-export async function GET(request: NextRequest, { params }: { params: { athleteId: string } }) {
-  const { athleteId } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ athleteId: string }> }) {
+  const { athleteId } = await params;
 
   // Parse query parameters
   const { searchParams } = new URL(request.url);

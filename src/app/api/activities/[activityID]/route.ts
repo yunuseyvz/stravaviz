@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server';
 import { loadAllAthleteActivities } from '../../../../lib/dataLoader';
 import { Activity } from '../../../../types/activity';
 
-export async function GET(request: NextRequest, { params }: { params: { activityId: string } }) {
-  const { activityId } = params;
+export async function GET(request: Request, { params }: { params: Promise<{ activityId: string }> }) {
+  const { activityId } = await params;
 
   // Load all activities across all athletes
   const allActivities: Activity[] = loadAllAthleteActivities();

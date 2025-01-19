@@ -77,7 +77,12 @@ const MapComponent: React.FC = () => {
 
       // Load and display the world map
       d3.json("https://d3js.org/world-50m.v1.json").then((worldData: any) => {
-        const countries = topojson.feature(worldData, worldData.objects.countries).features;
+        const geojson = topojson.feature(
+          worldData,
+          worldData.objects.countries
+        ) as unknown as GeoJSON.FeatureCollection;
+        
+        const countries = geojson.features;
 
         g.selectAll("path")
           .data(countries)
