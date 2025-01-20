@@ -181,7 +181,7 @@ const MonthlyDistanceChartWithYear = () => {
 
   return (
     <div className="flex flex-col items-center">
-      {isLoading && <p>Loading data...</p>}
+      {/* {isLoading && <p>Loading data...</p>} */}
       {error && <p className="text-red-500">{error}</p>}
       {!isLoading && !error && data.length === 0 && (
         <p>No data available for {selectedYear}.</p>

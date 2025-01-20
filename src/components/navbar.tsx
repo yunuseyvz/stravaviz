@@ -29,23 +29,41 @@ export const Navbar = () => {
 
   return (
     <header className="shadow-inner bg-opacity-50 backdrop-blur-2xl w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-5 mx-auto sticky border border-secondary z-40 rounded-2xl flex justify-between items-center p-2">
+      {/* Left Section: Logo */}
       <Link href="/" className="font-bold text-lg flex items-center">
         <div className="bg-gradient-to-tr from-primary via-primary/70 to-primary rounded-lg p-2 border border-secondary">
           <PieChart className="w-6 h-6 text-white" />
         </div>
         <span className="ml-2">InfoVis</span>
       </Link>
-     
-      {/* <!-- Desktop --> */}
-      <NavigationMenu className="hidden lg:block mx-auto">
-        <NavigationMenuList>
-        <ProfileSelector />
-        <YearSelector />
-        </NavigationMenuList>
-      </NavigationMenu>
 
-       {/* <!-- Mobile --> */}
-       <div className="flex items-center lg:hidden">
+      {/* Center Section: ProfileSelector (Desktop) */}
+      <div className="hidden lg:flex flex-1 justify-center">
+        <ProfileSelector />
+      </div>
+
+      {/* Right Section: YearSelector and Other Items (Desktop) */}
+      <div className="hidden lg:flex items-center space-x-4">
+        <YearSelector />
+        <ToggleTheme />
+        <Button asChild size="sm" variant="ghost" aria-label="View on GitLab">
+          <Link
+            aria-label="View on GitLab"
+            href="https://gitlab.lrz.de/iv2425-projects/team-07"
+            target="_blank"
+          >
+            <Gitlab className="size-5" />
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="ghost" aria-label="About">
+          <Link href="/about">
+            <Info className="size-5" />
+          </Link>
+        </Button>
+      </div>
+
+      {/* Mobile View */}
+      <div className="flex items-center lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Menu
@@ -70,43 +88,34 @@ export const Navbar = () => {
                 </SheetTitle>
               </SheetHeader>
 
-              <div className="flex flex-col gap-2">
-              <YearSelector />
-              <ProfileSelector />
-                
+              <div className="flex flex-col gap-4">
+                <ProfileSelector />
+                <YearSelector />
               </div>
             </div>
 
             <SheetFooter className="flex-col sm:flex-col justify-start items-start">
               <Separator className="mb-2" />
-
               <ToggleTheme />
+              <div className="flex space-x-2 mt-2">
+                <Button asChild size="sm" variant="ghost" aria-label="View on GitLab">
+                  <Link
+                    aria-label="View on GitLab"
+                    href="https://gitlab.lrz.de/iv2425-projects/team-07"
+                    target="_blank"
+                  >
+                    <Gitlab className="size-5" />
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="ghost" aria-label="About">
+                  <Link href="/about">
+                    <Info className="size-5" />
+                  </Link>
+                </Button>
+              </div>
             </SheetFooter>
           </SheetContent>
         </Sheet>
-      </div>
-
-      <div className="hidden lg:flex items-center">
-        
-        <ToggleTheme />
-
-        <Button asChild size="sm" variant="ghost" aria-label="View on GitLab">
-          <Link
-            aria-label="View on GitLab"
-            href="https://gitlab.lrz.de/iv2425-projects/team-07"
-            target="_blank"
-          >
-            <Gitlab className="size-5" />
-          </Link>
-        </Button>
-        <Button asChild size="sm" variant="ghost" aria-label="View on GitHub">
-          <Link
-            aria-label="About"
-            href="/about"
-          >
-            <Info className="size-5" />
-          </Link>
-        </Button>
       </div>
     </header>
   );

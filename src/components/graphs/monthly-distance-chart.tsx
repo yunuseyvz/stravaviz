@@ -189,7 +189,7 @@ const MonthlyDistanceChart = () => {
 
   return (
     <div className="flex flex-col items-center">
-      {isLoading && <p>Loading data...</p>}
+      {/* {isLoading && <p>Loading data...</p>} */}
 
       <VictoryChart
         containerComponent={<VictoryVoronoiContainer />}
