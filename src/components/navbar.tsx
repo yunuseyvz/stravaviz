@@ -43,7 +43,7 @@ export const Navbar = () => {
       </div>
 
       {/* Right Section: YearSelector and Other Items (Desktop) */}
-      <div className="hidden lg:flex items-center space-x-4">
+      <div className="hidden lg:flex items-center space-x-4 justify-end">
         <YearSelector />
         <ToggleTheme />
         <Button asChild size="sm" variant="ghost" aria-label="View on GitLab">

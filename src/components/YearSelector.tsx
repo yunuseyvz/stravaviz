@@ -66,35 +66,39 @@ const YearSelector = () => {
 
       {/* Year Display */}
       <div className="flex items-center space-x-4">
-        {/* Left Year (if available) */}
-        {leftYear && (
-          <button
-            onClick={() => handleSelectYear(leftYear)}
-            className="text-md text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
-            aria-label={`Select year ${leftYear}`}
-          >
-            {leftYear}
-          </button>
-        )}
+        <div className="flex items-center justify-center overflow-hidden" style={{ width: '150px' }}>
+          <div className="flex transition-transform duration-500 ease-in-out space-x-2">
+            {/* Left Year (if available) */}
+            {leftYear && (
+              <button
+                onClick={() => handleSelectYear(leftYear)}
+                className="text-md text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
+                aria-label={`Select year ${leftYear}`}
+              >
+                {leftYear}
+              </button>
+            )}
 
-        {/* Selected Year */}
-        <div
-          className="text-lg font-bold text-blue-500 dark:text-blue-400"
-          aria-label={`Selected year ${selectedYear}`}
-        >
-          {selectedYear}
+            {/* Selected Year */}
+            <div
+              className="text-lg font-bold text-blue-500 dark:text-blue-400"
+              aria-label={`Selected year ${selectedYear}`}
+            >
+              {selectedYear}
+            </div>
+
+            {/* Right Year (if available) */}
+            {rightYear && (
+              <button
+                onClick={() => handleSelectYear(rightYear)}
+                className="text-md text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
+                aria-label={`Select year ${rightYear}`}
+              >
+                {rightYear}
+              </button>
+            )}
+          </div>
         </div>
-
-        {/* Right Year (if available) */}
-        {rightYear && (
-          <button
-            onClick={() => handleSelectYear(rightYear)}
-            className="text-md text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
-            aria-label={`Select year ${rightYear}`}
-          >
-            {rightYear}
-          </button>
-        )}
       </div>
 
       {/* Right Arrow */}
