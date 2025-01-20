@@ -8,7 +8,6 @@ import { ThemeProvider } from "../components/theme-provider";
 import BlurFade from "../components/ui/blur-fade";
 import { ReactNode } from "react";
 import { UserProvider } from "../context/UserContext";
-import Footer from "../components/footer"; // Import the Footer component
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -42,7 +41,6 @@ export default function RootLayout({
             <BlurFade>
               {children}
             </BlurFade>
-            <Footer /> {/* Add the Footer here */}
           </ThemeProvider>
         </UserProvider>
       </body>

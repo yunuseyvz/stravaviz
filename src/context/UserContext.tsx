@@ -13,6 +13,7 @@ type User = {
 // Define the shape of the context
 type UserContextType = {
   selectedUser: User | null;
+  userSelected: boolean;
   selectUser: (user: User) => void;
   deselectUser: () => void;
 };
@@ -23,12 +24,19 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Create a provider component
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userSelected, setUserSelected] = useState<boolean>(false);
 
-  const selectUser = (user: User) => setSelectedUser(user);
-  const deselectUser = () => setSelectedUser(null);
+  const selectUser = (user: User) => {
+    setSelectedUser(user);
+    setUserSelected(true);
+  };
+  const deselectUser = () => {
+    setSelectedUser(null);
+    setUserSelected(false);
+  };
 
   return (
-    <UserContext.Provider value={{ selectedUser, selectUser, deselectUser }}>
+    <UserContext.Provider value={{ selectedUser, userSelected, selectUser, deselectUser }}>
       {children}
     </UserContext.Provider>
   );
