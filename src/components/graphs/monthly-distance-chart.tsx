@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import {
-  VictoryAxis,
-  VictoryChart,
-  VictoryGroup,
-  VictoryLine,
-  VictoryScatter,
-  VictoryTheme,
-  VictoryTooltip,
-  VictoryVoronoiContainer,
-} from "victory";
-import { Checkbox, FormControlLabel } from "@mui/material";
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { useUser } from "@/context/UserContext"; // Adjust import as needed
 
-// Your original color arrays
 const scatterColorPerYear = [
   { year: 2017, color: "#f43134" },
   { year: 2018, color: "#f26b1f" },
@@ -24,23 +22,27 @@ const scatterColorPerYear = [
   { year: 2024, color: "#5b4791" },
 ];
 
-const lineColorPerYear = [
-  { year: 2017, color: "#fbadae" },
-  { year: 2018, color: "#fac4a5" },
-  { year: 2019, color: "#fad9a2" },
-  { year: 2020, color: "#fbf0b2" },
-  { year: 2021, color: "#d7edc1" },
-  { year: 2022, color: "#ade3d7" },
-  { year: 2023, color: "#b0cbd5" },
-  { year: 2024, color: "#bdb5d3" },
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 const MonthlyDistanceChart = () => {
-  const { selectedUser } = useUser(); 
+  const { selectedUser } = useUser();
   const [dataPerYear, setDataPerYear] = useState<
-    { year: number; data: { x: string; y: number }[] }[]
+    { year: number; data: { month: string; distance: number }[] }[]
   >([]);
-  const [visibleYears, setVisibleYears] = useState<number[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -52,29 +54,23 @@ const MonthlyDistanceChart = () => {
     try {
       setIsLoading(true);
 
-      // For example, we want data from Jan 2017 through Dec 2024
       const startYear = 2017;
       const endYear = 2024;
       const startDate = `${startYear}-01-01`;
       const endDate = `${endYear}-12-31`;
 
-      // GET /api/athletes/:athleteId/metrics?metric=distance&startDate=...&endDate=...
       const url = `/api/athletes/${athleteId}/metrics?metric=distance&startDate=${startDate}&endDate=${endDate}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Request failed with status: ${response.status}`);
       }
 
-      // The shape: { metric: "distance", aggregatedData: [{ month: "YYYY-MM", totalDistance: number }, ...] }
       const result = await response.json();
-
-      // Transform into the shape: 
-      // [ { year: 2017, data: [ { x: "Jan", y: 1.23 }, ... ] }, ... ]
+      console.log("API Response:", result); // Log the raw data from the API
       const transformed = transformAggregatedData(result.aggregatedData);
 
       setDataPerYear(transformed);
-      // By default, set all years to visible
-      setVisibleYears(transformed.map(({ year }) => year));
+      setSelectedYear(transformed.length > 0 ? transformed[0].year : null);
     } catch (error) {
       console.error("Error fetching monthly distances:", error);
     } finally {
@@ -82,47 +78,37 @@ const MonthlyDistanceChart = () => {
     }
   }
 
-  // Convert data from the endpoint into year-based arrays for Victory
   function transformAggregatedData(
     aggregatedData: { month: string; totalDistance: number }[]
   ) {
-    // dataMap: { "2017": [{ x: "Jan", y: 123 }, ...], "2018": [...], ... }
-    const dataMap: Record<string, { x: string; y: number }[]> = {};
-
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
+    const dataMap: Record<string, { month: string; distance: number }[]> = {};
 
     aggregatedData.forEach((item) => {
-      // item.month is "YYYY-MM"
       const [yearStr, monStr] = item.month.split("-");
       const monthIndex = parseInt(monStr, 10) - 1;
       const monthLabel = monthNames[monthIndex] || "???";
-
-      // Convert meters to kilometers
       const distanceInKm = item.totalDistance / 1000;
 
       if (!dataMap[yearStr]) {
         dataMap[yearStr] = [];
       }
       dataMap[yearStr].push({
-        x: monthLabel,
-        y: distanceInKm,
+        month: monthLabel,
+        distance: distanceInKm,
       });
     });
 
-    // Create a sorted array from the year keys
+    // Ensure all months are included
+    Object.keys(dataMap).forEach((yearStr) => {
+      const yearData = dataMap[yearStr];
+      monthNames.forEach((month) => {
+        if (!yearData.find((data) => data.month === month)) {
+          yearData.push({ month, distance: 0 });
+        }
+      });
+      yearData.sort((a, b) => monthNames.indexOf(a.month) - monthNames.indexOf(b.month));
+    });
+
     return Object.keys(dataMap)
       .sort()
       .map((yearStr) => ({
@@ -131,136 +117,62 @@ const MonthlyDistanceChart = () => {
       }));
   }
 
-  // Find the highest distance across all data for y-axis maximum
-  function getMaxMonthlyDistance() {
-    let maxVal = 0;
-    dataPerYear.forEach(({ data }) => {
-      data.forEach((dp) => {
-        if (dp.y > maxVal) maxVal = dp.y;
-      });
-    });
-    return maxVal;
-  }
-
-  const handleCheckboxChange = (year: number) => {
-    setVisibleYears((prev) =>
-      prev.includes(year) ? prev.filter((y) => y !== year) : [...prev, year]
-    );
+  const handleYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(parseInt(event.target.value, 10));
   };
-
-  // Prepare y-axis ticks
-  const maxY = getMaxMonthlyDistance();
-  const increment = 250; // Adjust based on typical monthly distances
-  const yTickValues = Array.from(
-    { length: Math.ceil(maxY / increment) + 1 },
-    (_, i) => i * increment
-  );
-
-  // Standard x-axis months
-  const xTickValues = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  const tickStyle = {
-    tickLabels: {
-      fontSize: 8,
-    },
-    ticks: {
-      stroke: "#757575",
-      size: 5,
-    },
-  };
-
-  // Victory components
-  const labelComponent = <VictoryTooltip style={{ fontSize: 7 }} />;
-  const pointSize = 2;
-  const activePointSize = 3;
 
   return (
     <div className="flex flex-col items-center">
       {isLoading && <p>Loading data...</p>}
 
-      <VictoryChart
-        containerComponent={<VictoryVoronoiContainer />}
-        theme={VictoryTheme.clean}
-      >
-        <VictoryAxis dependentAxis tickValues={yTickValues} style={tickStyle} />
-        <VictoryAxis tickValues={xTickValues} style={tickStyle} />
-
-        {dataPerYear.map(({ year, data }) =>
-          visibleYears.includes(year) ? (
-            <VictoryGroup
-              key={year}
-              labels={({ datum }) => `${datum.x}: ${datum.y.toFixed(2)} km`}
-              labelComponent={labelComponent}
-              data={data}
-              color={
-                scatterColorPerYear.find((colorData) => colorData.year === year)
-                  ?.color
-              }
-            >
-              <VictoryLine
-                style={{
-                  data: {
-                    stroke: lineColorPerYear.find(
-                      (colorData) => colorData.year === year
-                    )?.color,
-                  },
-                }}
-              />
-              <VictoryScatter
-                size={({ active }) => (active ? activePointSize : pointSize)}
-              />
-            </VictoryGroup>
-          ) : null
-        )}
-      </VictoryChart>
-
-      {/* Checkboxes to toggle each year's visibility */}
-      <div className="flex justify-center -mt-14 z-40 flex-wrap">
-        {dataPerYear.map(({ year }) => (
-          <div
-            className="mx-2 px-2 rounded-md shadow-sm"
-            style={{
-              backgroundColor: lineColorPerYear.find(
-                (colorData) => colorData.year === year
-              )?.color,
-            }}
-            key={year}
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  onChange={() => handleCheckboxChange(year)}
-                  checked={visibleYears.includes(year)}
-                  sx={{
-                    color: scatterColorPerYear.find(
-                      (colorData) => colorData.year === year
-                    )?.color,
-                    "&.Mui-checked": {
-                      color: scatterColorPerYear.find(
-                        (colorData) => colorData.year === year
-                      )?.color,
-                    },
-                  }}
-                />
-              }
-              label={year}
-            />
-          </div>
-        ))}
+      <div className="mb-4">
+        <label htmlFor="year-select" className="mr-2 text-gray-900 dark:text-gray-100">
+          Select Year:
+        </label>
+        <select
+          id="year-select"
+          value={selectedYear ?? ""}
+          onChange={handleYearChange}
+          className="form-select px-3 py-2 border rounded-md shadow-sm dark:bg-gray-800 dark:text-gray-100"
+        >
+          {dataPerYear.map(({ year }) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
       </div>
+
+      <ResponsiveContainer width="60%" height={500}>
+        <LineChart
+          data={dataPerYear
+            .filter(({ year }) => year === selectedYear)
+            .flatMap(({ data }) => data)}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="month" />
+          <YAxis label={{ value: "Distance (km)", angle: -90, position: "insideLeft", offset: -10 }} />
+          <Tooltip />
+          {dataPerYear
+            .filter(({ year }) => year === selectedYear)
+            .map(({ year, data }) => (
+              <Line
+                key={year}
+                type="monotone"
+                dataKey="distance"
+                data={data}
+                name={year.toString()}
+                stroke={
+                  scatterColorPerYear.find((colorData) => colorData.year === year)
+                    ?.color
+                }
+                strokeWidth={3} // Set the stroke width to make the line thicker
+                activeDot={{ r: 8 }}
+              />
+            ))}
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
