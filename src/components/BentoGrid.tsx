@@ -5,6 +5,7 @@ import BlurFade from "../components/ui/blur-fade"; // Import BlurFade component
 const BentoGrid = () => {
   const items = [
     { href: "/distance-time", label: "Distance - Time", icon: BarChart2 },
+    { href: "/distance-time-year", label: "Distance - Time - Year Context", icon: BarChart2 },
     { href: "/heart-speed", label: "Heart Rate - Speed", icon: Heart },
     { href: "/alt-heart", label: "Altitude - Heart Rate", icon: Activity },
     { href: "/times-holidays", label: "Times - Holidays", icon: Calendar },

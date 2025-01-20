@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ToggleTheme } from "./toogle-theme";
 import ProfileSelector from "./ProfileSelector"; // Import the ProfileSelector component
+import YearSelector from "./YearSelector";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -39,7 +40,7 @@ export const Navbar = () => {
       <NavigationMenu className="hidden lg:block mx-auto">
         <NavigationMenuList>
         <ProfileSelector />
-          
+        <YearSelector />
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -70,6 +71,7 @@ export const Navbar = () => {
               </SheetHeader>
 
               <div className="flex flex-col gap-2">
+              <YearSelector />
               <ProfileSelector />
                 
               </div>

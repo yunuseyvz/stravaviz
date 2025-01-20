@@ -8,6 +8,7 @@ import { ThemeProvider } from "../components/theme-provider";
 import BlurFade from "../components/ui/blur-fade";
 import { ReactNode } from "react";
 import { UserProvider } from "../context/UserContext";
+import { YearProvider } from "@/context/YearContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,12 +37,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
         <UserProvider>
+          <YearProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Navbar />
             <BlurFade>
               {children}
             </BlurFade>
           </ThemeProvider>
+          </YearProvider>
         </UserProvider>
       </body>
     </html>
