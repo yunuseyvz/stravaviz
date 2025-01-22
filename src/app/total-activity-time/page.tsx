@@ -1,6 +1,7 @@
 "use client";
-import TotalTimePieChart from "@/components/graphs/TotalTimePieChart";
-import MonthlyDistanceChart from "@/components/graphs/TotalTimePieChart";
+import TotalTimePieChart from "@/components/graphs/ActivityMetricsPieChart";
+import ActivityMetricPieChart from "@/components/graphs/ActivityMetricsPieChart";
+import MonthlyDistanceChart from "@/components/graphs/ActivityMetricsPieChart";
 import BlurFade from "@/components/ui/blur-fade";
 
 export default function data1() {
@@ -8,7 +9,7 @@ export default function data1() {
     <div className="flex items-center justify-center p-8 sm:p-20">
       <div className="w-1/2 translate-y-10">
         <BlurFade>
-          <TotalTimePieChart />
+          <ActivityMetricPieChart />
         </BlurFade>
       </div>
     </div>

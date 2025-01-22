@@ -1,0 +1,180 @@
+// src/components/ActivityMetricPieChart.tsx
+
+"use client";
+
+import React, { useState, useEffect } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { useUser } from "@/context/UserContext";
+import { useYear } from "@/context/YearContext";
+
+// Define a set of colors for the pie slices
+const COLORS = [
+  "#8884d8",
+  "#8dd1e1",
+  "#82ca9d",
+  "#a4de6c",
+  "#d0ed57",
+  "#ffc658",
+  "#ff8042",
+  "#d0ed57",
+  "#a4de6c",
+  "#82ca9d",
+  "#7fc8f8",
+  "#ff9f6e",
+  "#a78fca",
+  "#c7e5f4",
+  "#6dd3ce",
+  "#fb7d77",
+  "#ffe156",
+  "#a8c256",
+  "#f48f42",
+];
+
+type Metric = "time" | "distance";
+
+const ActivityMetricPieChart = () => {
+  const { selectedUser } = useUser();
+  const { selectedYear } = useYear();
+  const [metric, setMetric] = useState<Metric>("time"); // Default to 'time'
+  const [data, setData] = useState<{ activityType: string; totalMetric: number }[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    if (!selectedUser || !selectedYear) return;
+    fetchActivityMetrics(selectedUser.StravaId, selectedYear, metric);
+  }, [selectedUser, selectedYear, metric]);
+
+  async function fetchActivityMetrics(
+    athleteId: string,
+    year: number,
+    selectedMetric: Metric
+  ) {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const startDate = `${year}-01-01`;
+      const endDate = `${year}-12-31`;
+
+      const url = `/api/athletes/${athleteId}/metrics?metric=${selectedMetric}&startDate=${startDate}&endDate=${endDate}&groupBy=activityType`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Request failed with status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const transformed = transformAggregatedData(result.aggregatedData, selectedMetric);
+
+      setData(transformed);
+    } catch (error: any) {
+      console.error("Error fetching activity metrics:", error);
+      setError(error.message || "Failed to fetch data.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function transformAggregatedData(
+    aggregatedData: { activityType: string; totalTime?: number; totalDistance?: number }[],
+    selectedMetric: Metric
+  ) {
+    return aggregatedData.map((item) => ({
+      activityType: item.activityType,
+      totalMetric: item[`total${capitalize(selectedMetric)}` as 'totalTime' | 'totalDistance'] || 0,
+    }));
+  }
+
+  function capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  const renderColors = (index: number) => COLORS[index % COLORS.length];
+
+  const totalMetric = data.reduce((acc, curr) => acc + curr.totalMetric, 0);
+
+  const labelTitle = metric === "time" ? "Total Hours" : "Total Distance (km)";
+  const tooltipFormatter = (value: number) =>
+    metric === "time" ? `${Math.round(value)} hours` : `${Math.round(value)} km`;
+
+  return (
+    <div className="flex flex-col items-center my-8">
+      <h2 className="text-xl font-semibold mb-4">
+        {capitalize(metric)} by Activity Type ({selectedYear})
+      </h2>
+
+      <div className="flex items-center mb-4">
+        <span className={`mr-2 font-medium ${metric === "time" ? "text-blue-600" : "text-gray-600"}`}>
+          Time
+        </span>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            value={metric}
+            checked={metric === "distance"}
+            onChange={() => setMetric(metric === "time" ? "distance" : "time")}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600"></div>
+          <span className={`ml-3 text-sm font-medium ${metric === "distance" ? "text-blue-600" : "text-gray-600"}`}>
+            Distance
+          </span>
+        </label>
+      </div>
+
+      {error && <p className="text-red-500">{error}</p>}
+      {isLoading && <p>Loading...</p>}
+      {!isLoading && !error && data.length === 0 && (
+        <p>No data available for {selectedYear}.</p>
+      )}
+      {!isLoading && !error && data.length > 0 && (
+        <div className="relative w-full max-w-md">
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="totalMetric"
+                nameKey="activityType"
+                cx="50%"
+                cy="50%"
+                outerRadius={150}
+                fill="#8884d8"
+                label={false}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={renderColors(index)} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={tooltipFormatter}
+                contentStyle={{ backgroundColor: "#f5f5f5", borderRadius: "5px" }}
+              />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ marginTop: "20px" }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          {/* Display total metric below the legend */}
+            <div className="mt-4 text-center">
+            <p className="text-lg font-semibold">{labelTitle}</p>
+            <p className="text-2xl font-bold">
+              {Math.round(totalMetric)} {metric === "time" ? "h" : "km"}
+            </p>
+            </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ActivityMetricPieChart;
