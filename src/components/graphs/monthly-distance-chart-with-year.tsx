@@ -50,7 +50,7 @@ const MonthlyDistanceChartWithYear = () => {
       const startDate = `${year}-01-01`;
       const endDate = `${year}-12-31`;
 
-      const url = `/api/athletes/${athleteId}/metrics?metric=distance&startDate=${startDate}&endDate=${endDate}`;
+      const url = `/api/athletes/${athleteId}/metrics?metric=distance&startDate=${startDate}&endDate=${endDate}&groupBy=month`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Request failed with status: ${response.status}`);
@@ -77,7 +77,7 @@ const MonthlyDistanceChartWithYear = () => {
       const [yearStr, monStr] = item.month.split("-");
       const monthIndex = parseInt(monStr, 10) - 1;
       const monthLabel = monthNames[monthIndex] || "???";
-      const distanceInKm = item.totalDistance / 1000;
+      const distanceInKm = item.totalDistance;
 
       dataPoints.push({
         month: monthLabel,

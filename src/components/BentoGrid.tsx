@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { BarChart2, Heart, Activity, MapPin, Calendar } from "lucide-react";
+import { BarChart2, Heart, Activity, MapPin, Calendar, ChartPie } from "lucide-react";
 import BlurFade from "../components/ui/blur-fade"; // Import BlurFade component
 
 const BentoGrid = () => {
   const items = [
-    { href: "/distance-time", label: "Distance - Time", icon: BarChart2 },
-    { href: "/distance-time-year", label: "Distance - Time - Year Context", icon: BarChart2 },
+    { href: "/distance-time-year", label: "Distance - Time", icon: BarChart2 },
+    { href: "/total-activity-time", label: "Total Activity Time", icon: ChartPie },
     { href: "/heart-speed", label: "Heart Rate - Speed", icon: Heart },
     { href: "/alt-heart", label: "Altitude - Heart Rate", icon: Activity },
     { href: "/times-holidays", label: "Times - Holidays", icon: Calendar },

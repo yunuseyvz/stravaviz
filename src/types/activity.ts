@@ -14,7 +14,7 @@ export interface Activity {
   filename: string;
   athleteWeight?: number;
   bikeWeight?: number;
-  movingTime?: number;
+  movingTime: number;
   maxSpeed: number;
   averageSpeed: number;
   elevationGain: number;
