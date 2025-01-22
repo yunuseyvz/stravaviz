@@ -6,10 +6,11 @@ const BentoGrid = () => {
   const items = [
     { href: "/distance-time-year", label: "Distance - Time", icon: BarChart2 },
     { href: "/total-activity-time", label: "Total Activity Time", icon: ChartPie },
+    { href: "/calendar", label: "Activity Calendar", icon: Calendar },
+    { href: "/map", label: "Map", icon: MapPin },
     { href: "/heart-speed", label: "Heart Rate - Speed", icon: Heart },
     { href: "/alt-heart", label: "Altitude - Heart Rate", icon: Activity },
-    { href: "/times-holidays", label: "Times - Holidays", icon: Calendar },
-    { href: "/map", label: "Map", icon: MapPin },
+
   ];
 
   return (

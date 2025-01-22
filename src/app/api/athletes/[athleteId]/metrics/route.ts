@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const activityTypeFilter = searchParams.get('activityType'); // optional
   const startDateStr = searchParams.get('startDate'); // optional
   const endDateStr = searchParams.get('endDate'); // optional
-  const groupBy = searchParams.get('groupBy') || 'month'; // new parameter: "month" or "activityType"
+  const groupBy = searchParams.get('groupBy') || 'month'; // new parameter: "month", "activityType", "day"
 
   // Validate metric
   const allowedMetrics = ['distance', 'elevation', 'time'];
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   // Validate groupBy
-  const allowedGroupBy = ['month', 'activityType'];
+  const allowedGroupBy = ['month', 'activityType', 'day'];
   if (!allowedGroupBy.includes(groupBy)) {
     return NextResponse.json(
       { error: `Invalid groupBy specified. Allowed values: ${allowedGroupBy.join(', ')}.` },
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   // Aggregate data based on groupBy parameter
-  const aggregation: { [key: string]: number } = {}; // e.g., { "2023-09": 5000, ... } or { "Running": 3600, "Cycling": 7200 }
+  const aggregation: { [key: string]: number } = {}; // e.g., { "2023-09-15": 3600, ... }
 
   activities.forEach(activity => {
     let key: string;
@@ -79,6 +79,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // "YYYY-MM"
     } else if (groupBy === 'activityType') {
       key = activity.activityType;
+    } else if (groupBy === 'day') {
+      const date = new Date(activity.activityDate);
+      key = date.toISOString().split('T')[0]; // "YYYY-MM-DD"
     } else {
       // Default to month if somehow groupBy is invalid
       const date = new Date(activity.activityDate);
@@ -109,12 +112,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       let formattedValue = aggregation[key];
 
       if (metric === 'time') {
-        if (groupBy === 'month') {
+        if (groupBy === 'day') {
           // Convert seconds to hours (rounded to two decimal places)
-          formattedValue = Number((formattedValue / 3600).toFixed(2)); // Example: 1.50 hours
-        } else if (groupBy === 'activityType') {
-          // Keep time in hours or convert as needed
-          formattedValue = Number((formattedValue / 3600).toFixed(2)); // Example: 2.75 hours
+          formattedValue = Number((formattedValue / 3600).toFixed(2)); // Example: 2.50 hours
+        } else if (groupBy === 'month' || groupBy === 'activityType') {
+          // Convert seconds to hours (rounded to two decimal places)
+          formattedValue = Number((formattedValue / 3600).toFixed(2)); // Example: 120.50 hours
         }
       } else if (metric === 'distance') {
         // Convert meters to kilometers
@@ -125,7 +128,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       }
 
       return {
-        [groupBy === 'month' ? 'month' : 'activityType']: key,
+        [groupBy === 'month' ? 'month' : groupBy === 'activityType' ? 'activityType' : 'date']: key,
         [`total${metric.charAt(0).toUpperCase() + metric.slice(1)}`]: formattedValue,
       };
     });
