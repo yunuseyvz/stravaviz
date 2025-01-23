@@ -7,6 +7,7 @@ import ActivityCalendar from "react-activity-calendar";
 import { useUser } from "@/context/UserContext";
 import { useYear } from "@/context/YearContext";
 import { ThemeInput } from "react-activity-calendar";
+import MuiTooltip from "@mui/material/Tooltip";
 
 // Updated interface to match react-activity-calendar's expected format
 interface DailyActivity {
@@ -123,6 +124,11 @@ const DailyActivityCalendarComponent = () => {
             showWeekdayLabels={['mon', 'fri']}
             weekStart={1}
             hideTotalCount={true}
+            renderBlock={(block, activity) => (
+              <MuiTooltip title={`${activity.count} hours on ${activity.date}`}>
+                {block}
+              </MuiTooltip>
+            )}
           />
           {/* Display total hours */}
           <div className="mt-4 text-center">
