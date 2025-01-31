@@ -102,8 +102,9 @@ const DailyActivityCalendarComponent = () => {
 
   // Define a color theme for the calendar
   const minimalTheme: ThemeInput = {
-    light: ['hsl(0, 0%, 92%)', '#60a5fa'], 
-    dark: ['hsl(0, 0%, 25%)', '#60a5fa'], 
+    light: ['white', 'blue'],
+    dark: ['lightgrey', 'blue'],
+    // for `dark` the default theme will be used
   };
 
   return (
@@ -123,6 +124,7 @@ const DailyActivityCalendarComponent = () => {
             theme={minimalTheme}
             showWeekdayLabels={['mon', 'fri']}
             weekStart={1}
+            blockRadius={10}
             hideTotalCount={true}
             renderBlock={(block, activity) => (
               <MuiTooltip title={`${activity.count} hours on ${activity.date}`}>

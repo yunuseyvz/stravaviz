@@ -16,25 +16,25 @@ import { useYear } from "@/context/YearContext";
 
 // Define a set of colors for the pie slices
 const COLORS = [
-  "#8884d8",
-  "#8dd1e1",
-  "#82ca9d",
-  "#a4de6c",
-  "#d0ed57",
-  "#ffc658",
-  "#ff8042",
-  "#d0ed57",
-  "#a4de6c",
-  "#82ca9d",
-  "#7fc8f8",
-  "#ff9f6e",
-  "#a78fca",
-  "#c7e5f4",
-  "#6dd3ce",
-  "#fb7d77",
-  "#ffe156",
-  "#a8c256",
-  "#f48f42",
+  "#4e79a7", // Dark blue
+  "#f28e2c", // Orange
+  "#e15759", // Red
+  "#76b7b2", // Teal
+  "#59a14f", // Green
+  "#edc949", // Yellow
+  "#af7aa1", // Purple
+  "#ff9da7", // Pink
+  "#9c755f", // Brown
+  "#2e5c8a", // Navy
+  "#4c9b82", // Forest green
+  "#b07aa1", // Mauve
+  "#ff7c43", // Coral
+  "#386cb0", // Royal blue
+  "#7a5195", // Deep purple
+  "#48a461", // Emerald
+  "#e45756", // Crimson
+  "#f1a340", // Golden
+  "#6d4c41", // Coffee
 ];
 
 type Metric = "time" | "distance";
@@ -135,7 +135,7 @@ const ActivityMetricPieChart = () => {
         <p>No data available for {selectedYear}.</p>
       )}
       {!isLoading && !error && data.length > 0 && (
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full max-w-4xl">
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
               <Pie
@@ -157,20 +157,28 @@ const ActivityMetricPieChart = () => {
                 contentStyle={{ backgroundColor: "#f5f5f5", borderRadius: "5px" }}
               />
               <Legend
-                layout="horizontal"
-                verticalAlign="bottom"
-                align="center"
-                wrapperStyle={{ marginTop: "20px" }}
+                layout="vertical"
+                align="right"
+                verticalAlign="middle"
+                wrapperStyle={{
+                  backgroundColor: "rgb(var(--background-rgb))",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  marginLeft: "20px",
+                  color: "rgb(var(--foreground-rgb))",
+                  border: "1px solid rgb(var(--border-rgb))",
+                }}
               />
             </PieChart>
           </ResponsiveContainer>
           {/* Display total metric below the legend */}
-            <div className="mt-4 text-center">
+          <div className="mt-4 text-center">
             <p className="text-lg font-semibold">{labelTitle}</p>
             <p className="text-2xl font-bold">
               {Math.round(totalMetric)} {metric === "time" ? "h" : "km"}
             </p>
-            </div>
+          </div>
         </div>
       )}
     </div>

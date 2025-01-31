@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,6 +14,7 @@ import {
   ResponsiveContainer,
   Scatter,
 } from "recharts";
+import { TbChartLine, TbChartBar } from "react-icons/tb";
 import { useUser } from "@/context/UserContext";
 import { useYear } from "@/context/YearContext";
 
@@ -36,6 +39,7 @@ const MonthlyDistanceChartWithYear = () => {
   const [data, setData] = useState<{ month: string; distance: number }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
 
   useEffect(() => {
     if (!selectedUser || !selectedYear) return;
@@ -105,7 +109,7 @@ const MonthlyDistanceChartWithYear = () => {
   }
 
   const maxY = getMaxMonthlyDistance();
-  const increment = 250; 
+  const increment = 250;
   const yTickValues = Array.from(
     { length: Math.ceil(maxY / increment) + 1 },
     (_, i) => i * increment
@@ -118,27 +122,63 @@ const MonthlyDistanceChartWithYear = () => {
         <p>No data available for {selectedYear}.</p>
       )}
       {!isLoading && !error && data.length > 0 && (
-        <ResponsiveContainer width="70%" height={700}>
-          <LineChart
-            data={data}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
-            <YAxis label={{ value: "Distance (km)", angle: -90, position: "insideLeft" }} />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="distance"
-              strokeWidth={3}
-              activeDot={{ r: 8 }}
-            />
-            <Scatter
-              dataKey="distance"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <>
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+              <button
+                onClick={() => setChartType('line')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${chartType === 'line'
+                    ? 'bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400'
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-gray-300'
+                  }`}
+              >
+                <TbChartLine className="text-xl" />
+                <span>Line</span>
+              </button>
+              <button
+                onClick={() => setChartType('bar')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${chartType === 'bar'
+                    ? 'bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400'
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-gray-300'
+                  }`}
+              >
+                <TbChartBar className="text-xl" />
+                <span>Bar</span>
+              </button>
+            </div>
+          </div>
+          <ResponsiveContainer width="70%" height={600}>
+            {chartType === 'line' ? (
+              <LineChart
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
+                <YAxis label={{ value: "Distance (km)", angle: -90, position: "insideLeft" }} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="distance"
+                  strokeWidth={3}
+                  activeDot={{ r: 8 }}
+                />
+                <Scatter dataKey="distance" />
+              </LineChart>
+            ) : (
+              <BarChart
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
+                <YAxis label={{ value: "Distance (km)", angle: -90, position: "insideLeft" }} />
+                <Tooltip />
+                <Bar dataKey="distance" fill="#8884d8" />
+              </BarChart>
+            )}
+          </ResponsiveContainer>
+        </>
       )}
     </div>
   );
