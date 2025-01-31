@@ -147,7 +147,7 @@ const MonthlyDistanceChartWithYear = () => {
               </button>
             </div>
           </div>
-          <ResponsiveContainer width="70%" height={600}>
+          <ResponsiveContainer width="50%" height={600}>
             {chartType === 'line' ? (
               <LineChart
                 data={data}

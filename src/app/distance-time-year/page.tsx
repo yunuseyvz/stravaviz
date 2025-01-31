@@ -13,7 +13,7 @@ export default function Data2() {
           progress over time.
         </p>
       </div>
-      <div className="w-2/3">
+      <div className="w-full">
         <BlurFade>
           <MonthlyDistanceChartWithYear/>
         </BlurFade>
