@@ -9,36 +9,36 @@ const BentoGrid = () => {
       label: "Distance - Time",
       description: "Monthly progress with detailed distance metrics",
       icon: BarChart2,
-      gradient: "from-blue-100 to-purple-100"
+      gradient: "from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30"
     },
     {
       href: "/total-activity-time",
       label: "Total Activity Time",
       description: "Cumulative activity duration and patterns",
       icon: ChartPie,
-      gradient: "from-green-100 to-cyan-100"
+      gradient: "from-green-100 to-cyan-100 dark:from-green-900/30 dark:to-cyan-900/30"
     },
     {
       href: "/calendar",
       label: "Activity Calendar",
       description: "View schedule and consistency",
       icon: Calendar,
-      gradient: "from-orange-100 to-pink-100"
+      gradient: "from-orange-100 to-pink-100 dark:from-orange-900/30 dark:to-pink-900/30"
     },
     {
       href: "/map",
       label: "Map",
       description: "Visualize routes and places of activity",
       icon: MapPin,
-      gradient: "from-red-100 to-yellow-100"
+      gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
     },
   ];
 
   return (
     <div className="my-auto mt-8">
       <div className="mb-6 text-center">
-      <h2 className="text-2xl font-semibold mb-4">Welcome to the Activity Dashboard</h2>
-      <p className="text-gray-600 text-center mb-10">
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">Welcome to the Activity Dashboard</h2>
+        <p className="text-gray-600 dark:text-gray-300 text-center mb-10">
           Explore the different sections to track and visualize fitness progress.
         </p>
       </div>
@@ -54,10 +54,10 @@ const BentoGrid = () => {
                 <div className="absolute inset-0 bg-white/10 rounded-xl backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20" />
                 <div className="relative flex flex-col h-full">
                   <div className="flex items-center gap-3 mb-4">
-                    <item.icon className="w-8 h-8 text-black" />
-                    <h3 className="text-lg font-bold text-black">{item.label}</h3>
+                    <item.icon className="w-8 h-8 text-black dark:text-white" />
+                    <h3 className="text-lg font-bold text-black dark:text-white">{item.label}</h3>
                   </div>
-                  <p className="text-sm text-black/70 line-clamp-2">
+                  <p className="text-sm text-black/70 dark:text-white/70 line-clamp-2">
                     {item.description}
                   </p>
                 </div>
