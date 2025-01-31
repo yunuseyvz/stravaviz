@@ -36,7 +36,7 @@ export const Navbar = () => {
         <div className="bg-gradient-to-tr from-primary via-primary/70 to-primary rounded-lg p-2 border border-secondary">
           <PieChart className="w-6 h-6 text-white" />
         </div>
-        <span className="ml-2">InfoVis</span>
+        <span className="ml-2">StravaViz</span>
       </Link>
 
       {/* Center Section: ProfileSelector (Desktop) */}

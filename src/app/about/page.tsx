@@ -11,11 +11,21 @@ export default function About() {
         <h1 className="text-5xl font-extrabold text-blue-600 dark:text-blue-400">
           About Our Project
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300">
-          Welcome to Group 7's Project!
-        </p>
-        <p className="text-lg text-gray-700 dark:text-gray-400">
-          This project visualizes data from the Strava dataset of our professor, 
+        </BlurFade>
+      </section>
+
+      {/* About Section */}
+      <BlurFade delay={0.1} className="w-full max-w-4xl">
+      <section className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 space-y-4">
+        <div className="flex items-center space-x-4">
+          <FaProjectDiagram className="text-4xl text-blue-600 dark:text-blue-400" />
+          <h2 className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
+            What is this?
+          </h2>
+        </div>
+        <p className="text-lg text-gray-700 dark:text-gray-300">
+          This project is part of the course "Information Visualization" at LMU Munich. 
+          It aims to provide an interactive and engaging way to explore the Strava dataset of our professor, 
           <span className="italic"> Andreas Butz</span>.
         </p>
         <a
@@ -26,11 +36,27 @@ export default function About() {
         >
           Download the Strava Dataset
         </a>
-        </BlurFade>
       </section>
+      </BlurFade>
+
+      {/* Data Section */}
+      <BlurFade delay={0.2} className="w-full max-w-4xl">
+      <section className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 space-y-4">
+        <div className="flex items-center space-x-4">
+          <MdDataUsage className="text-4xl text-blue-600 dark:text-blue-400" />
+          <h2 className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
+            Data Overview
+          </h2>
+        </div>
+        <p className="text-lg text-gray-700 dark:text-gray-300">
+          The dataset contains information about activities such as running, cycling, 
+          and swimming. It includes details like distance, duration, and calories burned.
+        </p>
+      </section>
+      </BlurFade>
 
        {/* Team Section */}
-       <BlurFade delay={0.1} className="w-full max-w-4xl">
+       <BlurFade delay={0.3} className="w-full max-w-4xl">
        <section className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 space-y-4">
         <div className="flex items-center space-x-4">
           <FaUsers className="text-4xl text-blue-600 dark:text-blue-400" />
@@ -48,44 +74,27 @@ export default function About() {
       </section>
       </BlurFade>
 
-      {/* Project Progress Section */}
-      <BlurFade delay={0.2} className="w-full max-w-4xl">
-      <section className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 space-y-4">
-        <div className="flex items-center space-x-4">
-          <FaProjectDiagram className="text-4xl text-blue-600 dark:text-blue-400" />
-          <h2 className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
-            Project Progress
-          </h2>
-        </div>
-        <p className="text-lg text-gray-700 dark:text-gray-300">
-          WIP. We have completed the initial setup and are currently working on the core features. 
-          Now our focus lays on understanding the data to create meaningful and interactive visualizations.
-        </p>
-      </section>
-      </BlurFade>
-
       {/* Features Section */}
-      <BlurFade delay={0.3} className="w-full max-w-4xl">
+      <BlurFade delay={0.4} className="w-full max-w-4xl">
       <section className= "bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 space-y-4">
         <div className="flex items-center space-x-4">
           <FaTasks className="text-4xl text-blue-600 dark:text-blue-400" />
           <h2 className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
-            Planned Features & Timeline
+            Features
           </h2>
         </div>
         <ul className="list-disc list-inside space-y-4 text-lg text-gray-700 dark:text-gray-300">
+        <li>
+            <strong>Dataset Selection:</strong> Choose between different datasets. Upload your own Strava data.
+          </li>
           <li>
-            <strong>Soon: Basic Time / Activity Graph:</strong> Interactive graph
-            with filtering functionality.
+            <strong>Activity Calendar:</strong> Track the fitness data through time.
+          </li>
+          <li>
+            <strong>Distance Over Time:</strong> Monthly distance achievements.
           </li>
           <li>
             <strong>Interactive Map:</strong> Visualizing the data on a map.
-          </li>
-          <li>
-            <strong>(Maybe) 3D Globe:</strong> An Interactive Activity Map.
-          </li>
-          <li>
-            <strong>...and more</strong> 
           </li>
         </ul>
       </section>
