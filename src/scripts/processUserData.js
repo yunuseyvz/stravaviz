@@ -96,8 +96,8 @@ const parseActivityFiles = () => {
     fs.readdir(UserRawActivityDir, (err, files) => {
       if (err) return reject(new Error(`Failed to read directory ${UserRawActivityDir}: ${err.message}`));
 
-      const gpxFiles = files.filter((file) => file.endsWith('.gpx.gz'));
-      const fitFiles = files.filter((file) => file.endsWith('.fit.gz'));
+      const gpxFiles = files.filter((file) => file.endsWith('.gpx'));
+      const fitFiles = files.filter((file) => file.endsWith('.fit'));
 
       const processGPX = (file) => {
         return new Promise((res, rej) => {
@@ -105,38 +105,34 @@ const parseActivityFiles = () => {
           fs.readFile(filePath, (err, data) => {
             if (err) return rej(new Error(`Failed to read file ${filePath}: ${err.message}`));
 
-            zlib.gunzip(data, (err, decompressed) => {
-              if (err) return rej(new Error(`Failed to decompress file ${filePath}: ${err.message}`));
+            gpxParse.parseGpx(data.toString(), (error, gpxData) => {
+              if (error) return rej(new Error(`Failed to parse GPX data from ${filePath}: ${error.message}`));
 
-              gpxParse.parseGpx(decompressed.toString(), (error, gpxData) => {
-                if (error) return rej(new Error(`Failed to parse GPX data from ${filePath}: ${error.message}`));
+              const geojson = {
+                type: 'Feature',
+                properties: {
+                  name: gpxData.metadata.name || 'Activity',
+                  time: gpxData.metadata.time || null,
+                },
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [],
+                },
+              };
 
-                const geojson = {
-                  type: 'Feature',
-                  properties: {
-                    name: gpxData.metadata.name || 'Activity',
-                    time: gpxData.metadata.time || null,
-                  },
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: [],
-                  },
-                };
-
-                gpxData.tracks.forEach((track) => {
-                  track.segments.forEach((segment) => {
-                    segment.forEach((point) => {
-                      geojson.geometry.coordinates.push([point.lon, point.lat]);
-                    });
+              gpxData.tracks.forEach((track) => {
+                track.segments.forEach((segment) => {
+                  segment.forEach((point) => {
+                    geojson.geometry.coordinates.push([point.lon, point.lat]);
                   });
                 });
-
-                const outputFileName = file.replace('.gpx.gz', '.geojson');
-                const outputPath = path.join(userProcessedDir, outputFileName);
-                fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2));
-                console.log(`✅ Parsed and saved ${outputFileName} for StravaId ${StravaId}`);
-                res();
               });
+
+              const outputFileName = file.replace('.gpx', '.geojson');
+              const outputPath = path.join(userProcessedDir, outputFileName);
+              fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2));
+              console.log(`✅ Parsed and saved ${outputFileName} for StravaId ${StravaId}`);
+              res();
             });
           });
         });
@@ -144,51 +140,47 @@ const parseActivityFiles = () => {
 
       const processFIT = (file) => {
         return new Promise((res, rej) => {
-          const filePath = path.join(userRawDir, file);
+          const filePath = path.join(UserRawActivityDir, file);
           fs.readFile(filePath, (err, data) => {
             if (err) return rej(new Error(`Failed to read file ${filePath}: ${err.message}`));
 
-            zlib.gunzip(data, (err, decompressed) => {
-              if (err) return rej(new Error(`Failed to decompress file ${filePath}: ${err.message}`));
+            const fitParser = new FitParser({
+              force: true,
+              speedUnit: 'm/s',
+              lengthUnit: 'meter',
+              temperatureUnit: 'celsius',
+              elapsedRecordField: true,
+              mode: 'list',
+            });
 
-              const fitParser = new FitParser({
-                force: true,
-                speedUnit: 'm/s',
-                lengthUnit: 'meter',
-                temperatureUnit: 'celsius',
-                elapsedRecordField: true,
-                mode: 'list',
-              });
+            fitParser.parse(data, (error, fitData) => {
+              if (error) return rej(new Error(`Failed to parse FIT data from ${filePath}: ${error.message}`));
 
-              fitParser.parse(decompressed, (error, fitData) => {
-                if (error) return rej(new Error(`Failed to parse FIT data from ${filePath}: ${error.message}`));
+              // Extract coordinates
+              const coordinates = fitData.records
+                .filter((record) => record.position_lat && record.position_long)
+                .map((record) => [
+                  record.position_long * (180 / Math.pow(2, 31)),
+                  record.position_lat * (180 / Math.pow(2, 31)),
+                ]);
 
-                // Extract coordinates
-                const coordinates = fitData.records
-                  .filter((record) => record.position_lat && record.position_long)
-                  .map((record) => [
-                    record.position_long * (180 / Math.pow(2, 31)),
-                    record.position_lat * (180 / Math.pow(2, 31)),
-                  ]);
+              const geojson = {
+                type: 'Feature',
+                properties: {
+                  name: (fitData.activity && fitData.activity.name) || 'Activity',
+                  time: (fitData.activity && fitData.activity.start_time) || null,
+                },
+                geometry: {
+                  type: 'LineString',
+                  coordinates: coordinates,
+                },
+              };
 
-                const geojson = {
-                  type: 'Feature',
-                  properties: {
-                    name: (fitData.activity && fitData.activity.name) || 'Activity',
-                    time: (fitData.activity && fitData.activity.start_time) || null,
-                  },
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: coordinates,
-                  },
-                };
-
-                const outputFileName = file.replace('.fit.gz', '.geojson');
-                const outputPath = path.join(userProcessedDir, outputFileName);
-                fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2));
-                console.log(`✅ Parsed and saved ${outputFileName} for StravaId ${StravaId}`);
-                res();
-              });
+              const outputFileName = file.replace('.fit', '.geojson');
+              const outputPath = path.join(userProcessedDir, outputFileName);
+              fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2));
+              console.log(`✅ Parsed and saved ${outputFileName} for StravaId ${StravaId}`);
+              res();
             });
           });
         });
@@ -197,8 +189,8 @@ const parseActivityFiles = () => {
       // Process all GPX and FIT files
       const promises = [];
       gpxFiles.forEach((file) => promises.push(processGPX(file)));
-      // fitFiles.forEach((file) => promises.push(processFIT(file)));
-      // only look at gpx files for now
+      //fitFiles.forEach((file) => promises.push(processFIT(file)));
+      // temporaly disable fit file processing
 
       Promise.all(promises)
         .then(() => resolve())
