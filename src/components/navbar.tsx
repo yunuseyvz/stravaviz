@@ -1,5 +1,5 @@
 "use client";
-import { ChevronsDown, Github, Menu, ChevronDown, Home, BarChart2, PieChart, Gitlab, Activity, Heart, Calendar, Info, MapPin } from "lucide-react";
+import { ChevronsDown, Github, Menu, ChevronDown, Home, BarChart2, PieChart, Gitlab, Activity, Heart, Calendar, Info, MapPin, GalleryHorizontal, GalleryThumbnails, Images } from "lucide-react";
 import React from "react";
 import {
   Sheet,
@@ -57,6 +57,11 @@ export const Navbar = () => {
             target="_blank"
           >
             <Gitlab className="size-5" />
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="ghost" aria-label="About">
+          <Link href="/gallery">
+            <Images className="size-5" />
           </Link>
         </Button>
         <Button asChild size="sm" variant="ghost" aria-label="About">

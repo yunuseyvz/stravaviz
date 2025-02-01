@@ -13,6 +13,16 @@ body {
   font-family: var(--font-geist-sans);
 }
 
+@keyframes fadeIn {
+  from { background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); }
+  to { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 @layer base {
   :root {
     --background: 210 100% 95%; 
