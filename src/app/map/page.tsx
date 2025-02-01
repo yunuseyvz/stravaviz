@@ -1,6 +1,12 @@
 // pages/heatmap.tsx
-import MapComponent from "@/components/map";
+
+"use client";
+
+import dynamic from "next/dynamic";
 import React from "react";
+
+// Dynamically import the MapComponent, disabling SSR
+const MapComponent = dynamic(() => import("@/components/map"), { ssr: false });
 
 const MapPage: React.FC = () => {
   return (

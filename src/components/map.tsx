@@ -1,125 +1,157 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import * as d3 from "d3";
-import * as topojson from "topojson-client";
+import React, { useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useUser } from "@/context/UserContext";
 
-/**
- * MapComponent
- * ------------
- * 1. Loads a world map (countries) from world-atlas.
- * 2. Overlays user's aggregated GeoJSON activities (all_activities.geojson).
- * 3. Supports zooming, dragging, and double-click reset.
- */
-const MapComponent: React.FC = () => {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const { selectedUser } = useUser(); // From your context
+// --- Helper Functions & Components ---
 
-  useEffect(() => {
-    // If no user selected or no SVG ref, skip
-    if (!selectedUser || !svgRef.current) return;
-
-    // Basic dimensions
-    const width = 900;
-    const height = 600;
-
-    // Select the SVG and clear any previous content
-    const svg = d3.select(svgRef.current).attr("viewBox", `0 0 ${width} ${height}`);
-    svg.selectAll("*").remove();
-
-    // Append a background rectangle (optional, for a consistent background color)
-    svg
-      .append("rect")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", "#181818"); // a dark background
-
-    // Append a group for all map/paths
-    const g = svg.append("g");
-
-    // Define a projection and path generator
-    const projection = d3
-      .geoMercator()
-      // scale tuned for a typical 900x600 viewport
-      .scale(140)
-      .translate([width / 2, height / 1.5]); // shift the map center
-
-    const pathGenerator = d3.geoPath().projection(projection);
-
-    // Define a zoom behavior
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1, 8])
-      .on("zoom", (event) => {
-        g.attr("transform", event.transform);
-      });
-
-    // Apply zoom behavior and disable double-click for zoom
-    svg.call(zoom as any);
-    svg.on("dblclick.zoom", null);
-
-    // Double-click to reset
-    svg.on("dblclick", () => {
-      svg.transition()
-        .duration(750)
-        .call(zoom.transform, d3.zoomIdentity);
-    });
-
-    // 1) Load the world map
-    //    Using a fairly detailed "countries-110m" from world-atlas
-    const worldMapUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-    d3.json(worldMapUrl).then((worldData: any) => {
-      // Convert TopoJSON to GeoJSON
-      const countries = topojson.feature(worldData, worldData.objects.countries) as unknown as GeoJSON.FeatureCollection;
-
-      // Draw countries
-      g.selectAll("path.country")
-        .data(countries.features)
-        .enter()
-        .append("path")
-        .attr("class", "country")
-        .attr("d", pathGenerator as any)
-        .attr("fill", "#333") // dark fill
-        .attr("stroke", "#444") // slightly lighter stroke
-        .attr("stroke-width", 0.5);
-
-      // 2) Build URL for the aggregated user data
-      const athleteId = selectedUser.StravaId;
-      const geojsonUrl = `/api/athletes/${athleteId}/geojson?file=all_activities.geojson&smooth=false`;
-
-      // 3) Fetch and overlay aggregated user activities
-      d3.json(geojsonUrl).then((activitiesData: any) => {
-        if (activitiesData && activitiesData.type === "FeatureCollection") {
-          g.selectAll("path.activity")
-            .data(activitiesData.features)
-            .enter()
-            .append("path")
-            .attr("class", "activity")
-            .attr("d", pathGenerator as any)
-            .attr("fill", "none")
-            .attr("stroke", "#ef476f") // bright pink/red
-            .attr("stroke-width", 2)
-            .attr("stroke-opacity", 0.7);
-        }
-      });
-    });
-  }, [selectedUser]);
-
-  return (
-    <svg
-      ref={svgRef}
-      // Style is optional; you can remove the fixed size if you'd prefer a responsive parent container
-      style={{
-        width: "100%",
-        maxWidth: "900px",
-        height: "600px",
-        border: "1px solid #ccc",
-        cursor: "grab"
-      }}
-    />
-  );
+// Returns a random color
+const getRandomColor = () => {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16);
 };
 
-export default MapComponent;
+// Adjusts map bounds when geoData changes
+function AutoBounds({ geoData }: { geoData: any }) {
+  const map = useMap();
+  useEffect(() => {
+    if (geoData) {
+      const geojsonLayer = L.geoJSON(geoData);
+      map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+    }
+  }, [geoData, map]);
+  return null;
+}
+
+// Listens to map events and calls onUpdate with the current view (center and zoom)
+function MapEvents({
+  onUpdate,
+}: {
+  onUpdate: (center: [number, number], zoom: number) => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    const updateView = () => {
+      const center = map.getCenter();
+      onUpdate([center.lat, center.lng], map.getZoom());
+    };
+    map.on("moveend zoomend", updateView);
+    // Update immediately on mount
+    updateView();
+    return () => {
+      map.off("moveend zoomend", updateView);
+    };
+  }, [map, onUpdate]);
+
+  return null;
+}
+
+// --- Main Map Component ---
+
+export default function MapComponent() {
+  const { selectedUser } = useUser();
+  const athleteId = selectedUser?.StravaId;
+
+  // State for toggling the "smooth" parameter
+  const [smooth, setSmooth] = useState(false);
+
+  // Fetched GeoJSON data
+  const [geoData, setGeoData] = useState<any>(null);
+
+  // Persist the map view (center and zoom) across MapContainer remounts.
+  // Using a ref ensures that its value survives re-renders/remounts of the MapContainer.
+  const mapViewRef = useRef<{ center: [number, number]; zoom: number }>({
+    center: [0, 0],
+    zoom: 2,
+  });
+
+  // Build URL for fetching GeoJSON data
+  const geojsonUrl = `/api/athletes/${athleteId}/geojson?file=all_activities.geojson&smooth=${smooth}`;
+
+  // Fetch GeoJSON when athleteId or smooth changes
+  useEffect(() => {
+    if (!athleteId) return;
+    fetch(geojsonUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        setGeoData(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching GeoJSON:", error);
+      });
+  }, [geojsonUrl, athleteId]);
+
+  // Create a unique key for the MapContainer using athleteId and smooth.
+  // This forces a remount of MapContainer on user or mode change.
+  const mapKey = `map-${athleteId}-${smooth}`;
+
+  // Optional cleanup: reset Leaflet's internal container on unmount.
+  useEffect(() => {
+    return () => {
+      const container = document.getElementById("map-container");
+      if (container && (container as any)._leaflet_id) {
+        (container as any)._leaflet_id = null;
+      }
+    };
+  }, [mapKey]);
+
+  // Style function for GeoJSON features
+  const styleFeature = () => ({
+    color: getRandomColor(),
+    weight: 3,
+  });
+
+  // Attach popups to each GeoJSON feature
+  const onEachFeature = (feature: any, layer: L.Layer) => {
+    const name = feature.properties?.name || "Unnamed Activity";
+    layer.bindPopup(`<b>${name}</b>`);
+  };
+
+  return (
+    <div style={{ width: "100%", height: "600px" }}>
+      {/* Toggle Button */}
+      <button
+        onClick={() => setSmooth((prev) => !prev)}
+        style={{ marginBottom: "10px", padding: "8px 16px", cursor: "pointer" }}
+      >
+        Toggle Smooth = {smooth ? "ON" : "OFF"}
+      </button>
+
+      {athleteId && (
+        <MapContainer
+          key={mapKey} // Forces remount on user or mode change.
+          id="map-container" // For cleanup purposes.
+          center={mapViewRef.current.center}
+          zoom={mapViewRef.current.zoom}
+          scrollWheelZoom={true}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {geoData && (
+            <GeoJSON
+              data={geoData}
+              style={styleFeature}
+              onEachFeature={onEachFeature}
+            />
+          )}
+
+          {geoData && <AutoBounds geoData={geoData} />}
+
+          {/* Listen to map events to update the persistent view */}
+          <MapEvents
+            onUpdate={(center, zoom) => {
+              mapViewRef.current = { center, zoom };
+            }}
+          />
+        </MapContainer>
+      )}
+    </div>
+  );
+}
