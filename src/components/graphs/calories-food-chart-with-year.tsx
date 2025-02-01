@@ -126,6 +126,20 @@ const CaloriesFoodChartWithYear = () => {
   const dataWithDubaiChocolate = divideCaloriesByFood(dubaiChocolateCalories);
   const dataWithPizza = divideCaloriesByFood(pizzaCalories);
 
+  // Add a variable to get the corresponding food label
+  const foodLabel = chartType === 'doener' ? 'Döner' : chartType === 'dubai' ? 'Dubai Chocolate' : 'Pizza';
+
+  // Custom tooltip renderer to display "x {FoodName}"
+  const renderCustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || !payload.length) return null;
+    return (
+      <div className="bg-white p-2 border rounded shadow dark:bg-gray-800">
+        {payload[0].payload.month} <br />
+        {`${payload[0].value} ${foodLabel}`}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col items-center">
       {error && <p className="text-red-500">{error}</p>}
@@ -177,7 +191,7 @@ const CaloriesFoodChartWithYear = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
                 <YAxis label={{ value: "Amount of doener (700 kcal)", angle: -90, position: "insideLeft" }} />
-                <Tooltip />
+                <Tooltip content={renderCustomTooltip} />
                 <Bar dataKey="foodCount" fill="#d99c5b" />
               </BarChart>
             ) : chartType === 'dubai' ? (
@@ -188,7 +202,7 @@ const CaloriesFoodChartWithYear = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
                 <YAxis label={{ value: "Amount of dubai chocolate (800 kcal)", angle: -90, position: "insideLeft" }} />
-                <Tooltip />
+                <Tooltip content={renderCustomTooltip} />
                 <Bar dataKey="foodCount" fill="#9aba59" />
               </BarChart>
             ) : (
@@ -199,7 +213,7 @@ const CaloriesFoodChartWithYear = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
                 <YAxis label={{ value: "Amount of pizza (1500 kcal)", angle: -90, position: "insideLeft" }} />
-                <Tooltip />
+                <Tooltip content={renderCustomTooltip} />
                 <Bar dataKey="foodCount" fill="#d64949" />
               </BarChart>
             )}
