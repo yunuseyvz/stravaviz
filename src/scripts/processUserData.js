@@ -87,18 +87,21 @@ const parseActivitiesCSV = () => {
   });
 };
 
+
+const UserRawActivityDir = path.join(userRawDir,"activities")
+
 // 2. Parse .gpx.gz and .fit.gz files
 const parseActivityFiles = () => {
   return new Promise((resolve, reject) => {
-    fs.readdir(userRawDir, (err, files) => {
-      if (err) return reject(new Error(`Failed to read directory ${userRawDir}: ${err.message}`));
+    fs.readdir(UserRawActivityDir, (err, files) => {
+      if (err) return reject(new Error(`Failed to read directory ${UserRawActivityDir}: ${err.message}`));
 
       const gpxFiles = files.filter((file) => file.endsWith('.gpx.gz'));
       const fitFiles = files.filter((file) => file.endsWith('.fit.gz'));
 
       const processGPX = (file) => {
         return new Promise((res, rej) => {
-          const filePath = path.join(userRawDir, file);
+          const filePath = path.join(UserRawActivityDir, file);
           fs.readFile(filePath, (err, data) => {
             if (err) return rej(new Error(`Failed to read file ${filePath}: ${err.message}`));
 
@@ -194,7 +197,8 @@ const parseActivityFiles = () => {
       // Process all GPX and FIT files
       const promises = [];
       gpxFiles.forEach((file) => promises.push(processGPX(file)));
-      fitFiles.forEach((file) => promises.push(processFIT(file)));
+      // fitFiles.forEach((file) => promises.push(processFIT(file)));
+      // only look at gpx files for now
 
       Promise.all(promises)
         .then(() => resolve())

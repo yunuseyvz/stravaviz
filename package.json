@@ -2,14 +2,15 @@
   "name": "team-07",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "npm run process:all && next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "process:user": "node src/scripts/processUserData.js",
-    "process:all": "node src/scripts/processAllUsers.js"
-  },
+"scripts": {
+  "dev": "npm run process:all && next dev",
+  "dev:no-process": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint",
+  "process:user": "node src/scripts/processUserData.js",
+  "process:all": "node src/scripts/processAllUsers.js"
+},
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
