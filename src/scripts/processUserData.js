@@ -158,9 +158,11 @@ const parseActivityFiles = () => {
                     console.warn(`No points found in segment ${segmentIndex} of track ${trackIndex} in ${filePath}. Skipping segment.`);
                     return;
                   }
-                  segment.forEach((point) => {
+                  // Consider only every 10th data point
+                  for (let i = 0; i < segment.length; i += 10) {
+                    const point = segment[i];
                     geojson.geometry.coordinates.push([point.lon, point.lat]);
-                  });
+                  }
                 });
               });
 
