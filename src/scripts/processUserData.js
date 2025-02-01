@@ -87,18 +87,35 @@ const parseActivitiesCSV = () => {
   });
 };
 
+const UserRawActivityDir = path.join(userRawDir, "activities_gpx");
 
-const UserRawActivityDir = path.join(userRawDir,"activities")
+// --- Early Filtering: Function to check if GPX file is empty ---
+const isGPXEmpty = (filePath) => {
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return data.includes('<trkseg></trkseg>');
+  } catch (err) {
+    console.warn(`Warning: Could not read file ${filePath} for empty check: ${err.message}`);
+    return false;
+  }
+};
 
-// 2. Parse .gpx.gz and .fit.gz files
+// 2. Parse .gpx and .fit files
 const parseActivityFiles = () => {
   return new Promise((resolve, reject) => {
     fs.readdir(UserRawActivityDir, (err, files) => {
       if (err) return reject(new Error(`Failed to read directory ${UserRawActivityDir}: ${err.message}`));
 
-      const gpxFiles = files.filter((file) => file.endsWith('.gpx'));
+      // Filter GPX and FIT files
+      const gpxFiles = files
+        .filter((file) => file.endsWith('.gpx'))
+        .filter((file) => {
+          const fullPath = path.join(UserRawActivityDir, file);
+          return !isGPXEmpty(fullPath); // Exclude empty GPX files
+        });
       const fitFiles = files.filter((file) => file.endsWith('.fit'));
 
+      // Process GPX Files
       const processGPX = (file) => {
         return new Promise((res, rej) => {
           const filePath = path.join(UserRawActivityDir, file);
@@ -106,13 +123,17 @@ const parseActivityFiles = () => {
             if (err) return rej(new Error(`Failed to read file ${filePath}: ${err.message}`));
 
             gpxParse.parseGpx(data.toString(), (error, gpxData) => {
-              if (error) return rej(new Error(`Failed to parse GPX data from ${filePath}: ${error.message}`));
+              if (error) {
+                console.warn(`Failed to parse GPX data from ${filePath}: ${error.message}. Skipping.`);
+                return res(); // Skip this file but resolve promise to continue processing others.
+              }
 
+              // Initialize the GeoJSON structure
               const geojson = {
                 type: 'Feature',
                 properties: {
-                  name: gpxData.metadata.name || 'Activity',
-                  time: gpxData.metadata.time || null,
+                  name: (gpxData.metadata && gpxData.metadata.name) || 'Activity',
+                  time: (gpxData.metadata && gpxData.metadata.time) || null,
                 },
                 geometry: {
                   type: 'LineString',
@@ -120,13 +141,34 @@ const parseActivityFiles = () => {
                 },
               };
 
-              gpxData.tracks.forEach((track) => {
-                track.segments.forEach((segment) => {
+              // Check if there are any tracks
+              if (!gpxData.tracks || gpxData.tracks.length === 0) {
+                console.warn(`No tracks found in ${filePath}. Skipping.`);
+                return res();
+              }
+
+              // Iterate through tracks, segments, and points with safety checks
+              gpxData.tracks.forEach((track, trackIndex) => {
+                if (!track.segments || track.segments.length === 0) {
+                  console.warn(`No segments found in track ${trackIndex} of ${filePath}. Skipping track.`);
+                  return;
+                }
+                track.segments.forEach((segment, segmentIndex) => {
+                  if (!segment || segment.length === 0) {
+                    console.warn(`No points found in segment ${segmentIndex} of track ${trackIndex} in ${filePath}. Skipping segment.`);
+                    return;
+                  }
                   segment.forEach((point) => {
                     geojson.geometry.coordinates.push([point.lon, point.lat]);
                   });
                 });
               });
+
+              // If no valid points were found, skip writing the file.
+              if (geojson.geometry.coordinates.length === 0) {
+                console.warn(`No valid track points found in ${filePath}. Skipping file.`);
+                return res();
+              }
 
               const outputFileName = file.replace('.gpx', '.geojson');
               const outputPath = path.join(userProcessedDir, outputFileName);
@@ -138,59 +180,11 @@ const parseActivityFiles = () => {
         });
       };
 
-      const processFIT = (file) => {
-        return new Promise((res, rej) => {
-          const filePath = path.join(UserRawActivityDir, file);
-          fs.readFile(filePath, (err, data) => {
-            if (err) return rej(new Error(`Failed to read file ${filePath}: ${err.message}`));
-
-            const fitParser = new FitParser({
-              force: true,
-              speedUnit: 'm/s',
-              lengthUnit: 'meter',
-              temperatureUnit: 'celsius',
-              elapsedRecordField: true,
-              mode: 'list',
-            });
-
-            fitParser.parse(data, (error, fitData) => {
-              if (error) return rej(new Error(`Failed to parse FIT data from ${filePath}: ${error.message}`));
-
-              // Extract coordinates
-              const coordinates = fitData.records
-                .filter((record) => record.position_lat && record.position_long)
-                .map((record) => [
-                  record.position_long * (180 / Math.pow(2, 31)),
-                  record.position_lat * (180 / Math.pow(2, 31)),
-                ]);
-
-              const geojson = {
-                type: 'Feature',
-                properties: {
-                  name: (fitData.activity && fitData.activity.name) || 'Activity',
-                  time: (fitData.activity && fitData.activity.start_time) || null,
-                },
-                geometry: {
-                  type: 'LineString',
-                  coordinates: coordinates,
-                },
-              };
-
-              const outputFileName = file.replace('.fit', '.geojson');
-              const outputPath = path.join(userProcessedDir, outputFileName);
-              fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2));
-              console.log(`✅ Parsed and saved ${outputFileName} for StravaId ${StravaId}`);
-              res();
-            });
-          });
-        });
-      };
-
-      // Process all GPX and FIT files
+      // You can also add FIT processing here (if needed), following a similar pattern.
       const promises = [];
       gpxFiles.forEach((file) => promises.push(processGPX(file)));
-      //fitFiles.forEach((file) => promises.push(processFIT(file)));
-      // temporaly disable fit file processing
+      // If processing FIT files, add their promises as well.
+      // fitFiles.forEach((file) => promises.push(processFIT(file)));
 
       Promise.all(promises)
         .then(() => resolve())
