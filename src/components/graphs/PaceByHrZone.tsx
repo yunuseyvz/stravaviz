@@ -142,11 +142,6 @@ export default function PaceByHRZone() {
         </div>
       </div>
 
-      {data.length === 0 && (
-        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300" role="alert">
-          No data available for {selectedYear}.
-        </div>
-      )}
 
       {data.length > 0 && (
         // New container to center the chart
