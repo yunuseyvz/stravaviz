@@ -75,8 +75,6 @@ const HRBucketPaceGraph = () => {
         HR Bucket Average Pace (Moving Average)
       </h2>
       {error && <p className="text-red-500">{error}</p>}
-      {isLoading && <p>Loading data...</p>}
-      
       <div className="flex flex-wrap gap-4 mb-6">
         <div>
           <label htmlFor="hrMin" className="block font-medium">
@@ -123,10 +121,6 @@ const HRBucketPaceGraph = () => {
           />
         </div>
       </div>
-
-      {(!isLoading && data.length === 0) && (
-        <p>No data available for the selected filters and year.</p>
-      )}
 
       {!isLoading && data.length > 0 && (
         <ResponsiveContainer width="100%" height={400}>

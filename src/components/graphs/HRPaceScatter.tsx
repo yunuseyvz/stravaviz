@@ -86,7 +86,7 @@ const HRPaceScatter = () => {
   return (
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {isLoading && <p>Loading data...</p>}
+
       {!isLoading && data.length === 0 && (
         <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300 max-w-56 mx-auto" role="alert">
           No data available for {selectedYear}.
@@ -117,7 +117,7 @@ const HRPaceScatter = () => {
                 domain={[120, 200]}
                 ticks={hrTicks}
               />
-              <Scatter name="HR vs. Pace" data={data} fill="#8884d8" />
+              <Scatter name="HR vs. Pace" data={data} fill="#8884d8" isAnimationActive={false} />
             </ScatterChart>
           </ResponsiveContainer>
         </div>
