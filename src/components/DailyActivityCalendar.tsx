@@ -107,6 +107,9 @@ const DailyActivityCalendarComponent = () => {
     // for `dark` the default theme will be used
   };
 
+  // Determine if all days have 0 activity hours
+  const showWarning = (!isLoading && !error && data.length > 0 && data.every((dp) => dp.count === 0));
+
   return (
     <div className="flex flex-col items-center my-8">
       <h2 className="text-xl font-semibold mb-4">
@@ -114,10 +117,12 @@ const DailyActivityCalendarComponent = () => {
       </h2>
       {error && <p className="text-red-500">{error}</p>}
       {isLoading && <p>Loading...</p>}
-      {!isLoading && !error && data.length === 0 && (
-        <p>No data available for {selectedYear}.</p>
+      {showWarning && (
+        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300" role="alert">
+          No data available for {selectedYear}.
+        </div>
       )}
-      {!isLoading && !error && data.length > 0 && (
+      {!isLoading && !error && !showWarning && data.length > 0 && (
         <div className="w-full max-w-4xl">
           <ActivityCalendar
             data={data}

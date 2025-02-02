@@ -11,14 +11,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   // Parse query parameters
   const { searchParams } = new URL(request.url);
-  const metric = searchParams.get('metric'); // e.g., "distance", "elevation", "time"
+  const metric = searchParams.get('metric'); // e.g., "distance", "elevation", "time", "calories".
   const activityTypeFilter = searchParams.get('activityType'); // optional
   const startDateStr = searchParams.get('startDate'); // optional
   const endDateStr = searchParams.get('endDate'); // optional
   const groupBy = searchParams.get('groupBy') || 'month'; // new parameter: "month", "activityType", "day"
 
   // Validate metric
-  const allowedMetrics = ['distance', 'elevation', 'time'];
+  const allowedMetrics = ['distance', 'elevation', 'time', 'calories'];
   if (!metric || !allowedMetrics.includes(metric)) {
     return NextResponse.json(
       { error: `Invalid metric specified. Allowed values: ${allowedMetrics.join(', ')}.` },
@@ -96,6 +96,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     } else if (metric === 'time') {
       // Assuming movingTime is in seconds
       value = activity.movingTime;
+    } else if (metric === 'calories') {
+      value = activity.calories;
     }
 
     if (aggregation[key]) {
@@ -125,6 +127,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       } else if (metric === 'elevation') {
         // Convert meters to kilometers if needed
         formattedValue = Number((formattedValue / 1000).toFixed(2)); // Example: 1.75 km
+      } else if (metric === 'calories') {
+        formattedValue = Math.round(formattedValue); // Example: 2500 calories
       }
 
       return {

@@ -35,7 +35,7 @@ export default function Gallery() {
   const currentImages = images.slice(indexOfFirstImage, indexOfLastImage);
 
   return (
-    <div className="min-h-screen mx-auto p-8 pb-20 sm:p-20 space-y-12 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen mx-auto p-8 pb-20 sm:p-20 space-y-12 text-gray-900 dark:text-gray-100 mt-10">
       {/* Hero Section */}
       <section className="w-full text-center space-y-4">
         <BlurFade>

@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { useUser } from "@/context/UserContext";
 import { useYear } from "@/context/YearContext";
+import { Clock, MapPin, Ruler } from "lucide-react"; // added import for icons
 
 // Define a set of colors for the pie slices
 const COLORS = [
@@ -105,34 +106,42 @@ const ActivityMetricPieChart = () => {
     metric === "time" ? `${Math.round(value)} hours` : `${Math.round(value)} km`;
 
   return (
-    <div className="flex flex-col items-center my-8">
+    <div className="flex flex-col items-center">
       <h2 className="text-xl font-semibold mb-4">
         {capitalize(metric)} by Activity Type ({selectedYear})
       </h2>
 
-      <div className="flex items-center mb-4">
-        <span className={`mr-2 font-medium ${metric === "time" ? "text-blue-600" : "text-gray-600"}`}>
-          Time
-        </span>
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            value={metric}
-            checked={metric === "distance"}
-            onChange={() => setMetric(metric === "time" ? "distance" : "time")}
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600"></div>
-          <span className={`ml-3 text-sm font-medium ${metric === "distance" ? "text-blue-600" : "text-gray-600"}`}>
-            Distance
-          </span>
-        </label>
+      <div className="mb-4">
+        <div className="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+          <button
+            onClick={() => setMetric("time")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${metric === "time"
+              ? "bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400"
+              : "hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-gray-300"
+              }`}
+          >
+            <Clock className="text-xl" />
+            <span>Time</span>
+          </button>
+          <button
+            onClick={() => setMetric("distance")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${metric === "distance"
+              ? "bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400"
+              : "hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-gray-300"
+              }`}
+          >
+            <Ruler className="text-xl" />
+            <span>Distance</span>
+          </button>
+        </div>
       </div>
 
       {error && <p className="text-red-500">{error}</p>}
       {isLoading && <p>Loading...</p>}
       {!isLoading && !error && data.length === 0 && (
-        <p>No data available for {selectedYear}.</p>
+        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300" role="alert">
+        No data available for {selectedYear}.
+      </div>
       )}
       {!isLoading && !error && data.length > 0 && (
         <div className="relative w-full max-w-4xl">

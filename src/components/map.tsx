@@ -1,117 +1,116 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import * as d3 from "d3";
-import * as topojson from "topojson-client";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { useUser } from "@/context/UserContext";
 
-const MapComponent: React.FC = () => {
-  const mapRef = useRef<SVGSVGElement | null>(null);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      const svg = d3.select(mapRef.current);
-      const width = 800;
-      const height = 600;
-
-      // Clear previous content
-      svg.selectAll("*").remove();
-
-      // Append a group element to hold the map
-      const g = svg.append("g");
-
-      // Define projection and path generator
-      const projection = d3
-        .geoMercator()
-        .scale(width / (2 * Math.PI))
-        .translate([width / 2, height / 2]);
-
-      const path = d3.geoPath().projection(projection);
-
-      // Define zoom behavior
-      const zoom = d3.zoom<SVGSVGElement, unknown>()
-        .scaleExtent([1, 8]) // Minimum and maximum zoom levels
-        .on("zoom", (event) => {
-          g.attr("transform", event.transform);
-        });
-
-      // Apply zoom behavior to the SVG
-      svg.call(zoom as any); // Type casting due to TypeScript
-
-      // Disable the default double-click zoom behavior
-      svg.on("dblclick.zoom", null);
-
-      // Function to handle click events on countries
-      const handleCountryClick = (event: any, d: any) => {
-        const [[x0, y0], [x1, y1]] = path.bounds(d);
-        const dx = x1 - x0;
-        const dy = y1 - y0;
-        const x = (x0 + x1) / 2;
-        const y = (y0 + y1) / 2;
-        const scale = Math.min(8, 0.9 / Math.max(dx / width, dy / height));
-        const translate: [number, number] = [width / 2 - scale * x, height / 2 - scale * y];
-
-        svg.transition()
-          .duration(750)
-          .call(
-            zoom.transform,
-            d3.zoomIdentity
-              .translate(translate[0], translate[1])
-              .scale(scale),
-            d3.pointer(event, svg.node())
-          );
-      };
-
-      // Function to handle double-click events for zooming out
-      const handleDoubleClick = (event: any) => {
-        svg.transition()
-          .duration(750)
-          .call(
-            zoom.transform,
-            d3.zoomIdentity, // Reset to initial zoom
-            d3.pointer(event, svg.node())
-          );
-      };
-
-      // Attach double-click handler to the SVG
-      svg.on("dblclick", handleDoubleClick);
-
-      // Load and display the world map
-      d3.json("https://d3js.org/world-50m.v1.json").then((worldData: any) => {
-        const geojson = topojson.feature(
-          worldData,
-          worldData.objects.countries
-        ) as unknown as GeoJSON.FeatureCollection;
-        
-        const countries = geojson.features;
-
-        g.selectAll("path")
-          .data(countries)
-          .enter()
-          .append("path")
-          .attr("d", path)
-          .attr("fill", "#ccc")
-          .attr("stroke", "#333")
-          .on("mouseover", function () {
-            d3.select(this).attr("fill", "#aaa");
-          })
-          .on("mouseout", function () {
-            d3.select(this).attr("fill", "#ccc");
-          })
-          .on("click", handleCountryClick); // Add click handler
-      }).catch(error => {
-        console.error("Error loading the map data:", error);
-      });
-    }
-  }, []);
-
-  return (
-    <svg
-      ref={mapRef}
-      width="800"
-      height="600"
-      style={{ border: "1px solid black", cursor: "grab" }}
-    ></svg>
-  );
+// Updated color generator with a fixed palette that avoids green and yellow
+const colorPalette = [
+  "#FF5733", // Reddish
+  "#C70039", // Deep red
+  "#900C3F", // Dark red
+  "#581845", // Purple
+  "#0074D9", // Blue
+  "#FF4136", // Orange red
+  "#B10DC9", // Purple
+  "#001f3f", // Navy
+];
+const getRandomColor = () => {
+  return colorPalette[Math.floor(Math.random() * colorPalette.length)];
 };
 
-export default MapComponent;
+// A helper component that updates the map bounds whenever geoData changes
+function AutoBounds({ geoData }: { geoData: any }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (geoData) {
+      const geojsonLayer = L.geoJSON(geoData);
+      map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+    }
+  }, [geoData, map]);
+
+  return null;
+}
+
+export default function MapComponent() {
+  const { selectedUser } = useUser();
+  const athleteId = selectedUser?.StravaId;
+
+  // Always smooth the GeoJSON
+  const smooth = true;
+
+  // Our fetched GeoJSON data
+  const [geoData, setGeoData] = useState(null);
+
+  // Construct the URL for our combined GeoJSON (all activities)
+  const geojsonUrl = `/api/athletes/${athleteId}/geojson?file=all_activities.geojson&smooth=${smooth}`;
+
+  // Fetch the data when athleteId changes
+  useEffect(() => {
+    if (!athleteId) return;
+
+    fetch(geojsonUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        setGeoData(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching GeoJSON:", error);
+      });
+  }, [geojsonUrl, athleteId]);
+
+  // Cleanup effect: on unmount, reset the Leaflet ID from the container if present.
+  useEffect(() => {
+    return () => {
+      const container = document.getElementById("map-container");
+      if (container && (container as any)._leaflet_id) {
+        (container as any)._leaflet_id = null;
+      }
+    };
+  }, []);
+
+  // Style each feature with a random color
+  const styleFeature = () => ({
+    color: getRandomColor(),
+    weight: 3,
+  });
+
+  // Show popups for each activity feature:
+  const onEachFeature = (feature: any, layer: L.Layer) => {
+    const name = feature.properties?.name || "Unnamed Activity";
+    layer.bindPopup(`<b>${name}</b>`);
+  };
+
+  return (
+    <div style={{ width: "100%", height: "600px" }}>
+      {athleteId && (
+        <MapContainer
+          id="map-container" // assign a fixed ID to the container
+          style={{ width: "100%", height: "100%" }}
+          center={[0, 0]}
+          zoom={2}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {geoData && (
+            <GeoJSON
+              key={JSON.stringify(geoData)}
+              data={geoData}
+              style={styleFeature}
+              onEachFeature={onEachFeature}
+            />
+          )}
+
+    
+        </MapContainer>
+      )}
+    </div>
+  );
+}

@@ -6,8 +6,8 @@ import "./globals.css";
 import { Navbar } from "../components/navbar";
 import { ThemeProvider } from "../components/theme-provider";
 import BlurFade from "../components/ui/blur-fade";
-import { ReactNode } from "react";
 import { UserProvider } from "../context/UserContext";
+import { MantineProvider } from "@mantine/core";
 import { YearProvider } from "@/context/YearContext";
 
 const geistSans = localFont({
@@ -28,9 +28,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -38,12 +38,12 @@ export default function RootLayout({
       >
         <UserProvider>
           <YearProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Navbar />
-            <BlurFade>
-              {children}
-            </BlurFade>
-          </ThemeProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <MantineProvider>
+                <Navbar />
+                <BlurFade>{children}</BlurFade>
+              </MantineProvider>
+            </ThemeProvider>
           </YearProvider>
         </UserProvider>
       </body>
