@@ -73,7 +73,7 @@ export default function HomeContent() {
       {userSelected ? (
         <BentoGrid />
       ) : (
-        <section className="w-full flex flex-col items-center my-auto">
+        <section className="w-full flex flex-col items-center my-auto pt-36">
           <h2 className="text-2xl font-semibold mb-4">Select a Strava Dataset</h2>
           <p className="text-gray-600 text-center mb-6">You can select a user to view their data or upload a new Strava Dataset.</p>
           {loading ? (
@@ -98,7 +98,7 @@ export default function HomeContent() {
                     >
                       <div
                         className={classNames(
-                          "w-24 h-24 rounded-full overflow-hidden border-2 transition-all",
+                          "w-28 h-28 rounded-full overflow-hidden border-2 transition-all",
                           {
                             "border-blue-500 border-4": isSelected, // Apply outline only to the image
                             "border-gray-300": !isSelected, // Default border
@@ -108,8 +108,8 @@ export default function HomeContent() {
                         <Image
                           src={`/api/images?userId=${user.StravaId}`}
                           alt={`${user.username}'s profile`}
-                          width={96}
-                          height={96}
+                          width={112}
+                          height={112}
                           className="object-cover"
                           placeholder="blur"
                           blurDataURL="/default-profile.jpg" 
@@ -128,7 +128,7 @@ export default function HomeContent() {
 
               <div className="flex flex-col items-center">
                 <button
-                  className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 hover:bg-gray-300 transition-colors duration-300"
+                  className="w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 hover:bg-gray-300 transition-colors duration-300"
                   onClick={() => alert("Add User functionality coming soon!")}
                 >
                   <span className="text-3xl text-gray-600">+</span>
