@@ -38,7 +38,7 @@ const BentoGrid = () => {
       label: "Heart Rate vs. Pace",
       description: "Visualize your pace and heart rate distribution",
       icon: Zap,
-      gradient: "from-teal-100 to-emerald-100 dark:from-teal-900/30 dark:to-emerald-900/30"
+      gradient: "from-red-200 to-pink-100 dark:from-red-900/30 dark:to-ruby-900/30"
     },
     {
       href: "/calories",
@@ -52,7 +52,7 @@ const BentoGrid = () => {
       label: "Performance (experimental)",
       description: "Visualize your performance trends over time",
       icon: TrendingUp,
-      gradient: "from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30"
+      gradient: "from-purple-200 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30"
     }
   ];
 
