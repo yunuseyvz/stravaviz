@@ -3,11 +3,8 @@ import type { NextRequest } from "next/server";
 import fs from "fs";
 import path from "path";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { athleteId: string } }
-) {
-  const { athleteId } = params;
+export async function GET(request: NextRequest, { params }: {  params:Promise<{ athleteId: string }>  }){
+  const { athleteId } = await params;
   const { searchParams } = request.nextUrl;
   const yearParam = searchParams.get("year");
 

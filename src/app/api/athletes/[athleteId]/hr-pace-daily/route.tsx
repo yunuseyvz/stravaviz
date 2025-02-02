@@ -16,9 +16,7 @@ function isLeapYear(year: number): boolean {
   return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { athleteId: string } }
+export async function GET(request: NextRequest, { params }: {  params:Promise<{ athleteId: string }>  }
 ) {
   const { athleteId } = await params;
   const { searchParams } = request.nextUrl;

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart2, Heart, Activity, MapPin, Calendar, ChartPie, TrendingUp, Zap, Pizza } from "lucide-react";
+import { BarChart2, Calendar, ChartPie, MapPin, TrendingUp, Zap, Pizza } from "lucide-react";
 import BlurFade from "../components/ui/blur-fade";
 
 const BentoGrid = () => {
@@ -37,14 +37,16 @@ const BentoGrid = () => {
       label: "Effort vs. Speed",
       description: "Visualize your pace and heart rate distribution",
       icon: Zap,
-      gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
+      // New gradient for scatter: teal to emerald
+      gradient: "from-teal-100 to-emerald-100 dark:from-teal-900/30 dark:to-emerald-900/30"
     },
     {
       href: "/performance",
       label: "Performance (experimental)",
       description: "Visualize your performance trends over time",
       icon: TrendingUp,
-      gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
+      // New gradient for performance: purple to indigo
+      gradient: "from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30"
     },
     {
       href: "/calories",
@@ -58,7 +60,9 @@ const BentoGrid = () => {
   return (
     <div className="my-auto mt-8">
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-semibold mb-4 dark:text-white">Welcome to the Activity Dashboard</h2>
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">
+          Welcome to the Activity Dashboard
+        </h2>
         <p className="text-gray-600 dark:text-gray-300 text-center mb-10">
           Explore the different sections to track and visualize fitness progress.
         </p>
@@ -67,16 +71,20 @@ const BentoGrid = () => {
         {items.map((item, index) => (
           <BlurFade key={item.href} delay={index * 0.1}>
             <Link href={item.href} className="block">
-              <div className={`relative p-6 rounded-xl bg-gradient-to-br ${item.gradient} 
+              <div
+                className={`relative p-6 rounded-xl bg-gradient-to-br ${item.gradient} 
                 shadow-lg backdrop-blur-sm 
                 transition-all duration-300 
                 hover:scale-[1.02] hover:shadow-2xl
-                group hover:bg-gradient-to-tl`}>
+                group hover:bg-gradient-to-tl`}
+              >
                 <div className="absolute inset-0 bg-white/10 rounded-xl backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20" />
                 <div className="relative flex flex-col h-full">
                   <div className="flex items-center gap-3 mb-4">
                     <item.icon className="w-8 h-8 text-black dark:text-white" />
-                    <h3 className="text-lg font-bold text-black dark:text-white">{item.label}</h3>
+                    <h3 className="text-lg font-bold text-black dark:text-white">
+                      {item.label}
+                    </h3>
                   </div>
                   <p className="text-sm text-black/70 dark:text-white/70 line-clamp-2">
                     {item.description}
