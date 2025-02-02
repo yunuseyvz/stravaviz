@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart2, Heart, Activity, MapPin, Calendar, ChartPie, TrendingUp } from "lucide-react";
+import { BarChart2, Heart, Activity, MapPin, Calendar, ChartPie, TrendingUp, Zap } from "lucide-react";
 import BlurFade from "../components/ui/blur-fade";
 
 const BentoGrid = () => {
@@ -33,8 +33,15 @@ const BentoGrid = () => {
       gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
     },
     {
+      href: "/scatter",
+      label: "Effort vs. Speed",
+      description: "Visualize your pace and heart rate distribution",
+      icon: Zap,
+      gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
+    },
+    {
       href: "/performance",
-      label: "Performance",
+      label: "Performance (experimental)",
       description: "Visualize your performance trends over time",
       icon: TrendingUp,
       gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"

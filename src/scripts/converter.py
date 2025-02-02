@@ -107,6 +107,10 @@ class Converter:
         df_laps = pd.DataFrame(data_laps, columns=self._colnames_laps)
         df_laps.set_index('number', inplace=True)
         df_points = pd.DataFrame(data_points, columns=self._colnames_points)
+        if 'enhanced_speed' in df_points.columns and df_points['speed'].count() == 0:
+            df_points['speed'] = df_points['enhanced_speed']
+        if 'enhanced_altitude' in df_points.columns and df_points['altitude'].count() == 0:
+            df_points['altitude'] = df_points['enhanced_altitude']
 
         return df_laps, df_points
 

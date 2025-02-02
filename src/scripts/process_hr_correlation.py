@@ -1,6 +1,7 @@
 # file: process_heart_rate_correlation.py
 
 import os
+import shutil
 import pandas as pd
 import json
 import numpy as np
@@ -12,21 +13,25 @@ class HeartRatePaceProcessor:
     This class uses the existing StravaConverter to parse .FIT files,
     then computes correlation between heart rate and pace (rolling average).
     It also filters out data points with slopes above a threshold.
+    Additionally, it filters out speed values outside of [8 km/h, 15 km/h]
+    and downsamples the output by keeping every Nth data point.
     """
 
     def __init__(self, dir_in: str, dir_out: str, slope_threshold: float = 0.01, 
-                 rolling_window_sec: int = 30, status_msg: bool = False):
+                 rolling_window_sec: int = 30, downsample_factor: int = 100, status_msg: bool = False):
         """
-        :param dir_in: Path to the directory containing .fit activities (or your 'activities_gpx' or 'activities' folder)
+        :param dir_in: Path to the directory containing .fit activities (or your 'activities' folder)
         :param dir_out: Where to store the correlation JSON files
-        :param slope_threshold: absolute slope threshold above which data is excluded (uphill/downhill)
-        :param rolling_window_sec: window size in seconds for rolling average
-        :param status_msg: print status messages
+        :param slope_threshold: Absolute slope threshold above which data is excluded (uphill/downhill)
+        :param rolling_window_sec: Window size in seconds for the rolling average
+        :param downsample_factor: Keep every Nth data point in the output (default 100)
+        :param status_msg: If True, print status messages
         """
         self.dir_in = dir_in
         self.dir_out = dir_out
         self.slope_threshold = slope_threshold
         self.rolling_window_str = f'{rolling_window_sec}S'  # for Pandas time-based rolling
+        self.downsample_factor = downsample_factor
         self.status_msg = status_msg
         
         if not os.path.exists(self.dir_out):
@@ -43,7 +48,6 @@ class HeartRatePaceProcessor:
         and save to JSON. Only processes activities whose type is "run" or "lauf".
         """
         # Look for the activities.csv metadata file.
-        # Assuming activities.csv is one level up from the directory of FIT files.
         activities_csv_path = os.path.join(os.path.dirname(self.dir_in.rstrip(os.sep)), 'activities.csv')
         if os.path.exists(activities_csv_path):
             df_acts = pd.read_csv(activities_csv_path).fillna('')
@@ -82,7 +86,7 @@ class HeartRatePaceProcessor:
             try:
                 df_laps, df_points = self.converter.fit_to_dataframes(f_path)
                 
-                # Compute correlation for the activity
+                # Compute correlation and HR/pace points for the activity
                 corr_data = self._compute_correlation_per_activity(df_points, f)
                 if corr_data is not None:
                     results.append(corr_data)
@@ -104,7 +108,7 @@ class HeartRatePaceProcessor:
                     print(f"Error processing {f}: {e}")
                 continue
         
-        # Optionally, write an aggregated file with all correlations
+        # Write an aggregated file with all correlations.
         all_corr_path = os.path.join(self.dir_out, "all_correlations.json")
         with open(all_corr_path, 'w') as fp:
             json.dump(results, fp, indent=2, default=str)
@@ -112,65 +116,80 @@ class HeartRatePaceProcessor:
         if self.status_msg:
             print(f"Finished processing. Stored {len(results)} correlation results.")
 
-    def _compute_correlation_per_activity(self, df_points: pd.DataFrame, filename: str) -> Optional[Dict[str, Any]]:
-        """
-        1) Filter out missing heart rate / speed rows
-        2) Convert to time-index, compute slope
-        3) Filter out slopes above threshold
-        4) Compute 30s rolling average
-        5) Correlate HR and pace
-        6) Return correlation + metadata
-        """
+    def _compute_correlation_per_activity(self, df_points: pd.DataFrame, filename: str):
         # Ensure we have the columns we need
         if 'heart_rate' not in df_points.columns or 'speed' not in df_points.columns:
             return None
-        
-        # Remove rows with missing heart rate or speed values.
-        df_points = df_points.dropna(subset=['heart_rate', 'speed'])
-        if df_points.empty:
-            return None
 
-        # Convert timestamp to datetime, sort, and set as index.
+        # Remove rows with missing heart_rate or speed
+        df_points = df_points.dropna(subset=['heart_rate', 'speed'])
+
+        # --- New HR filtering: keep only HR points between 110 and 200 bpm ---
+        df_points = df_points[(df_points['heart_rate'] >= 110) & (df_points['heart_rate'] <= 200)]
+        # if df_points.empty:
+        #     return None
+
+        # Convert timestamp to datetime, sort, and set as index
         df_points['timestamp'] = pd.to_datetime(df_points['timestamp'])
         df_points.sort_values(by='timestamp', inplace=True)
         df_points.set_index('timestamp', inplace=True)
 
-        # If altitude is missing, fill it (so that slope filtering works).
-        if 'altitude' not in df_points.columns or df_points['altitude'].isnull().all():
+        # Ensure altitude exists (so slope calc doesn’t fail); fill if missing
+        if 'altitude' not in df_points.columns:
+            df_points['altitude'] = 0
+        else:
             df_points['altitude'].fillna(method='ffill', inplace=True)
             df_points['altitude'].fillna(value=0, inplace=True)
-        
+
         # Compute slope
         df_points['delta_time'] = df_points.index.to_series().diff().dt.total_seconds()
-        df_points['horizontal_dist'] = df_points['speed'] * df_points['delta_time']  # in meters
+        df_points['horizontal_dist'] = df_points['speed'] * df_points['delta_time']  # meters
         df_points['delta_alt'] = df_points['altitude'].diff()
         df_points['slope'] = df_points['delta_alt'] / df_points['horizontal_dist'].replace(0, np.nan)
-        
-        # Filter out segments with absolute slope above threshold.
+
+        # Filter by slope threshold (absolute value)
         df_points = df_points[abs(df_points['slope']) < self.slope_threshold]
         if df_points.empty:
             return None
-        
-        # Compute rolling averages over the specified window for heart rate and speed.
+
+        # --- New speed filtering ---
+        # Keep only data points with speed between 8 km/h and 15 km/h.
+        # (Conversion: 8 km/h = 8/3.6 m/s, 15 km/h = 15/3.6 m/s)
+        lower_speed = 8 / 3.6  # m/s
+        upper_speed = 15 / 3.6  # m/s
+        df_points = df_points[(df_points['speed'] >= lower_speed) & (df_points['speed'] <= upper_speed)]
+        if df_points.empty:
+            return None
+
+        # Rolling averages for heart rate and speed
         df_points['hr_rolling'] = df_points['heart_rate'].rolling(self.rolling_window_str).mean()
         df_points['speed_rolling'] = df_points['speed'].rolling(self.rolling_window_str).mean()
 
-        # Convert rolling speed to pace in min/km (speed is in m/s).
-        df_points['pace_rolling'] = (1000.0 / df_points['speed_rolling']) / 60.0  # (min/km)
-        
-        # Drop rows where the rolling averages are NaN.
+        # Convert rolling speed (m/s) to pace (seconds per km)
+        df_points['pace_rolling'] = 1000.0 / df_points['speed_rolling']
+
+        # Drop rows where rolling averages are NaN
         df_points.dropna(subset=['hr_rolling', 'pace_rolling'], inplace=True)
         if df_points.empty:
             return None
-        
-        # Compute the correlation between the rolling heart rate and pace.
+
+        # Compute correlation between the rolling HR and pace
         correlation = df_points['hr_rolling'].corr(df_points['pace_rolling'])
 
-        # Extract start and end time for the activity.
+        # --- Downsample the output ---
+        # Instead of outputting every point, keep only every Nth data point.
+        df_downsampled = df_points.iloc[::self.downsample_factor]
+        hr_pace_points = []
+        for ts, row in df_downsampled.iterrows():
+            hr_pace_points.append({
+                "timestamp": ts.isoformat(),
+                "hr": int(round(row['hr_rolling'])),       # rounded to nearest int
+                "pace": int(round(row['pace_rolling'])),     # rounded to nearest second
+            })
+
         start_time = df_points.index[0].isoformat()
         end_time = df_points.index[-1].isoformat()
 
-        # Return a dictionary with the results and some metadata.
         return {
             "filename": filename,
             "start_time": start_time,
@@ -178,17 +197,46 @@ class HeartRatePaceProcessor:
             "correlation_rolling_30s": float(correlation),
             "slope_threshold": self.slope_threshold,
             "rolling_window_sec": int(self.rolling_window_str.replace('S','')),
+            "downsample_factor": self.downsample_factor,
+            "hr_pace_points": hr_pace_points
         }
 
-if __name__ == "__main__":
-    # Example usage:
-    # The dir_in should contain your .fit files (e.g., the "activities" folder)
-    # The dir_out is where you'll store the correlation JSON results.
-    #USER = 'Strava-export_47979926'
-    USER = 'Strava-export_62940241'
-    BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'users', 'raw')
-    DIR_IN = os.path.join(BASE_DIR, USER, 'activities')
-    DIR_OUT = os.path.join(BASE_DIR, USER, 'corr')
 
-    processor = HeartRatePaceProcessor(dir_in=DIR_IN, dir_out=DIR_OUT, slope_threshold=0.01, status_msg=True)
-    processor.process_all_fit_files()
+if __name__ == "__main__":
+    # List of athlete identifiers (their export folder names)
+    athletes = ['Strava-export_62940241', 'Strava-export_47979926']
+
+    # Determine the base directory; adjust as needed.
+    # This example assumes the following directory structure:
+    # <core_dir>/data/users/raw/<athlete>/activities
+    # and the processed output should go to:
+    # <core_dir>/data/users/processed/<athlete_id>/corr
+    core_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)))
+    BASE_DIR = os.path.join(core_dir, 'data', 'users', 'raw')
+    BASE_OUT_DIR = os.path.join(core_dir, 'data', 'users', 'processed')
+
+    # Process each athlete
+    for athlete in athletes:
+        print(f"\nProcessing athlete: {athlete}")
+
+        # Input remains in the raw folder using the full athlete string.
+        DIR_IN = os.path.join(BASE_DIR, athlete, 'activities')
+
+        # Extract only the numeric part of the athlete string.
+        athlete_id = athlete.split('_')[-1]
+        DIR_OUT = os.path.join(BASE_OUT_DIR, athlete_id, 'corr')
+
+        # If the output directory exists, delete it before processing.
+        if os.path.exists(DIR_OUT):
+            print(f"Deleting existing output directory: {DIR_OUT}")
+            shutil.rmtree(DIR_OUT)
+
+        # Create the processor instance with status messages enabled.
+        processor = HeartRatePaceProcessor(
+            dir_in=DIR_IN,
+            dir_out=DIR_OUT,
+            slope_threshold=0.005,
+            downsample_factor=100,
+            status_msg=True
+        )
+        processor.process_all_fit_files()

@@ -1,5 +1,8 @@
 "use client";
 import HeartRatePaceCorrelationTrend from "@/components/graphs/HeartRatePaceCorrelationTrend";
+import HRBucketPaceGraph from "@/components/graphs/HRBucketPaceGraph";
+import HRPaceScatter from "@/components/graphs/HRPaceScatter";
+import PaceByHRZone from "@/components/graphs/PaceByHrZone";
 import BlurFade from "@/components/ui/blur-fade";
 
 export default function Data2() {
@@ -13,7 +16,7 @@ export default function Data2() {
       </div>
       <div className="w-full">
         <BlurFade>
-          <HeartRatePaceCorrelationTrend/>
+          <PaceByHRZone/>
         </BlurFade>
       </div>
     </div>
