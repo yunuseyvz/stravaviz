@@ -4,10 +4,13 @@ import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import classNames from "classnames";
 import { useYear } from "../context/YearContext";
+import { usePathname } from "next/navigation"; // new import
 
 const YearSelector = () => {
   const { selectedYear, selectYear } = useYear();
   const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const pathname = usePathname(); // get current route
+  const isDisabled = pathname === "/" || pathname === "/map"; // new variable
 
   const MIN_YEAR = 2019;
   const MAX_YEAR = 2025;
@@ -28,19 +31,21 @@ const YearSelector = () => {
   }, [selectedYear, selectYear]);
 
   const handlePrevious = () => {
-    if (selectedYear > MIN_YEAR) {
+    if (!isDisabled && selectedYear > MIN_YEAR) {
       selectYear(selectedYear - 1);
     }
   };
 
   const handleNext = () => {
-    if (selectedYear < MAX_YEAR) {
+    if (!isDisabled && selectedYear < MAX_YEAR) {
       selectYear(selectedYear + 1);
     }
   };
 
   const handleSelectYear = (year: number) => {
-    selectYear(year);
+    if (!isDisabled) {
+      selectYear(year);
+    }
   };
 
   // Determine the years to display
@@ -48,15 +53,15 @@ const YearSelector = () => {
   const rightYear = selectedYear + 1 <= MAX_YEAR ? selectedYear + 1 : null;
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className={classNames("flex items-center space-x-4", { "opacity-50 pointer-events-none": isDisabled })}>
       {/* Left Arrow */}
       <button
         onClick={handlePrevious}
-        disabled={selectedYear <= MIN_YEAR}
+        disabled={selectedYear <= MIN_YEAR || isDisabled}
         className={classNames(
           "p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-300 dark:bg-gray-700 dark:hover:bg-gray-800",
           {
-            "opacity-50 cursor-not-allowed": selectedYear <= MIN_YEAR,
+            "opacity-50 cursor-not-allowed": selectedYear <= MIN_YEAR || isDisabled,
           }
         )}
         aria-label="Previous Year"
@@ -104,11 +109,11 @@ const YearSelector = () => {
       {/* Right Arrow */}
       <button
         onClick={handleNext}
-        disabled={selectedYear >= MAX_YEAR}
+        disabled={selectedYear >= MAX_YEAR || isDisabled}
         className={classNames(
           "p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-300 dark:bg-gray-700 dark:hover:bg-gray-800",
           {
-            "opacity-50 cursor-not-allowed": selectedYear >= MAX_YEAR,
+            "opacity-50 cursor-not-allowed": selectedYear >= MAX_YEAR || isDisabled,
           }
         )}
         aria-label="Next Year"

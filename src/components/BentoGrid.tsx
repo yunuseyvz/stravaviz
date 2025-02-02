@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart2, Heart, Activity, MapPin, Calendar, ChartPie, TrendingUp, Zap } from "lucide-react";
+import { BarChart2, Heart, Activity, MapPin, Calendar, ChartPie, TrendingUp, Zap, Pizza } from "lucide-react";
 import BlurFade from "../components/ui/blur-fade";
 
 const BentoGrid = () => {
@@ -46,6 +46,13 @@ const BentoGrid = () => {
       icon: TrendingUp,
       gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
     },
+    {
+      href: "/calories",
+      label: "Calories",
+      description: "Compare your calorie expenditure to food",
+      icon: Pizza,
+      gradient: "from-green-100 to-yellow-100 dark:from-green-900/30 dark:to-yellow-900/30"
+    }
   ];
 
   return (
