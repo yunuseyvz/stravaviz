@@ -6,9 +6,19 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useUser } from "@/context/UserContext";
 
-// A helper function for random colors (for fun!)
+// Updated color generator with a fixed palette that avoids green and yellow
+const colorPalette = [
+  "#FF5733", // Reddish
+  "#C70039", // Deep red
+  "#900C3F", // Dark red
+  "#581845", // Purple
+  "#0074D9", // Blue
+  "#FF4136", // Orange red
+  "#B10DC9", // Purple
+  "#001f3f", // Navy
+];
 const getRandomColor = () => {
-  return "#" + Math.floor(Math.random() * 16777215).toString(16);
+  return colorPalette[Math.floor(Math.random() * colorPalette.length)];
 };
 
 // A helper component that updates the map bounds whenever geoData changes
@@ -91,13 +101,14 @@ export default function MapComponent() {
 
           {geoData && (
             <GeoJSON
+              key={JSON.stringify(geoData)}
               data={geoData}
               style={styleFeature}
               onEachFeature={onEachFeature}
             />
           )}
 
-          {geoData && <AutoBounds geoData={geoData} />}
+    
         </MapContainer>
       )}
     </div>
