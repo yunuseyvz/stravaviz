@@ -139,7 +139,9 @@ const ActivityMetricPieChart = () => {
       {error && <p className="text-red-500">{error}</p>}
       {isLoading && <p>Loading...</p>}
       {!isLoading && !error && data.length === 0 && (
-        <p>No data available for {selectedYear}.</p>
+        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300" role="alert">
+        No data available for {selectedYear}.
+      </div>
       )}
       {!isLoading && !error && data.length > 0 && (
         <div className="relative w-full max-w-4xl">

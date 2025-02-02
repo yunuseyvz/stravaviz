@@ -110,6 +110,9 @@ const CaloriesFoodChartWithYear = () => {
     (_, i) => i * increment
   );
 
+  // Determine if all data values are 0
+  const showWarning = (!isLoading && !error && (data.length === 0 || data.every((dp) => dp.calories === 0)));
+
   function divideCaloriesByFood(foodCalories: number) {
     return data.map((dp) => ({
       ...dp,
@@ -143,10 +146,12 @@ const CaloriesFoodChartWithYear = () => {
   return (
     <div className="flex flex-col items-center">
       {error && <p className="text-red-500">{error}</p>}
-      {!isLoading && !error && data.length === 0 && (
-        <p>No data available for {selectedYear}.</p>
+      {showWarning && (
+        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300" role="alert">
+          No data available for {selectedYear}.
+        </div>
       )}
-      {!isLoading && !error && data.length > 0 && (
+      {!isLoading && !error && data.length > 0 && !data.every((dp) => dp.calories === 0) && (
         <>
           <div className="mb-4">
             <div className="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
