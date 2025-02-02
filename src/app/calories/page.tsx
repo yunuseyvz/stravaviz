@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import CaloriesFoodChartWithYear from "@/components/graphs/calories-food-chart-with-year";
 import BlurFade from "@/components/ui/blur-fade";
+import YearSelector from "@/components/YearSelector";
 
 export default function Data2() {
   return (
@@ -20,6 +21,7 @@ export default function Data2() {
           </p>
         </div>
       </div>
+      <YearSelector />
       <div className="w-full">
         <BlurFade>
           <CaloriesFoodChartWithYear/>

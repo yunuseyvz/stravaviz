@@ -85,37 +85,42 @@ const HRPaceScatter = () => {
 
   return (
     <div>
-      <h2>Heart Rate vs. Pace Scatter Plot ({selectedYear})</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {isLoading && <p>Loading data...</p>}
-      {!isLoading && data.length === 0 && <p>No data available.</p>}
+      {!isLoading && data.length === 0 && (
+        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300 max-w-56 mx-auto" role="alert">
+          No data available for {selectedYear}.
+        </div>
+      )}
 
       {!isLoading && data.length > 0 && (
-        <ResponsiveContainer width="100%" height={400}>
-          <ScatterChart>
-            <CartesianGrid strokeDasharray="3 3" />
-            {/* X axis: pace in minutes per km, reversed so that 4:00 is on the left and 7:30 on the right */}
-            <XAxis
-              type="number"
-              dataKey="pace"
-              name="Pace"
-              unit=" min/km"
-              domain={[4, 7.5]}
-              ticks={paceTicks}
-              tickFormatter={formatPaceTick}
-            />
-            {/* Y axis: heart rate in bpm, ticks every 10 bpm (ascending order) */}
-            <YAxis
-              type="number"
-              dataKey="hr"
-              name="Heart Rate"
-              unit=" bpm"
-              domain={[120, 200]}
-              ticks={hrTicks}
-            />
-            <Scatter name="HR vs. Pace" data={data} fill="#8884d8" />
-          </ScatterChart>
-        </ResponsiveContainer>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ResponsiveContainer width="70%" height={500}>
+            <ScatterChart>
+              <CartesianGrid strokeDasharray="3 3" />
+              {/* X axis: pace in minutes per km, reversed so that 4:00 is on the left and 7:30 on the right */}
+              <XAxis
+                type="number"
+                dataKey="pace"
+                name="Pace"
+                unit=" min/km"
+                domain={[4, 7.5]}
+                ticks={paceTicks}
+                tickFormatter={formatPaceTick}
+              />
+              {/* Y axis: heart rate in bpm, ticks every 10 bpm (ascending order) */}
+              <YAxis
+                type="number"
+                dataKey="hr"
+                name="Heart Rate"
+                unit=" bpm"
+                domain={[120, 200]}
+                ticks={hrTicks}
+              />
+              <Scatter name="HR vs. Pace" data={data} fill="#8884d8" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

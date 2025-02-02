@@ -106,7 +106,7 @@ const ActivityMetricPieChart = () => {
     metric === "time" ? `${Math.round(value)} hours` : `${Math.round(value)} km`;
 
   return (
-    <div className="flex flex-col items-center my-8">
+    <div className="flex flex-col items-center">
       <h2 className="text-xl font-semibold mb-4">
         {capitalize(metric)} by Activity Type ({selectedYear})
       </h2>

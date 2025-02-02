@@ -3,6 +3,7 @@ import MonthlyDistanceChartWithYear from "@/components/graphs/monthly-distance-c
 import BlurFade from "@/components/ui/blur-fade";
 import Link from "next/link"; 
 import { ArrowLeft } from "lucide-react"; 
+import YearSelector from "@/components/YearSelector";
 
 export default function Data2() {
   return (
@@ -20,6 +21,7 @@ export default function Data2() {
           progress over time.
         </p>
       </div>
+      <YearSelector/>
       <div className="w-full">
         <BlurFade>
           <MonthlyDistanceChartWithYear/>

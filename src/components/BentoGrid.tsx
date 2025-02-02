@@ -1,19 +1,20 @@
 import Link from "next/link";
 import { BarChart2, Calendar, ChartPie, MapPin, TrendingUp, Zap, Pizza } from "lucide-react";
 import BlurFade from "../components/ui/blur-fade";
+import { Badge } from "./ui/badge";
 
 const BentoGrid = () => {
   const items = [
     {
       href: "/distance-time-year",
-      label: "Distance - Time",
+      label: "Distance - Monthly",
       description: "Monthly progress with detailed distance metrics",
       icon: BarChart2,
-      gradient: "from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30"
+      gradient: "from-blue-100 to-purple-200 dark:from-blue-900/30 dark:to-purple-600/30"
     },
     {
       href: "/total-activity-time",
-      label: "Total Activity Time",
+      label: "Total Time & Distance",
       description: "Cumulative activity duration and patterns",
       icon: ChartPie,
       gradient: "from-green-100 to-cyan-100 dark:from-green-900/30 dark:to-cyan-900/30"
@@ -27,33 +28,31 @@ const BentoGrid = () => {
     },
     {
       href: "/map",
-      label: "Map",
+      label: "World Map",
       description: "Visualize routes and places of activity",
       icon: MapPin,
       gradient: "from-red-100 to-yellow-100 dark:from-red-900/30 dark:to-yellow-900/30"
     },
     {
       href: "/scatter",
-      label: "Effort vs. Speed",
+      label: "Heart Rate vs. Pace",
       description: "Visualize your pace and heart rate distribution",
       icon: Zap,
-      // New gradient for scatter: teal to emerald
       gradient: "from-teal-100 to-emerald-100 dark:from-teal-900/30 dark:to-emerald-900/30"
+    },
+    {
+      href: "/calories",
+      label: "Calories vs. Food",
+      description: "Compare your calorie expenditure to food",
+      icon: Pizza,
+      gradient: "from-green-100 to-yellow-100 dark:from-green-900/30 dark:to-yellow-900/30"
     },
     {
       href: "/performance",
       label: "Performance (experimental)",
       description: "Visualize your performance trends over time",
       icon: TrendingUp,
-      // New gradient for performance: purple to indigo
       gradient: "from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30"
-    },
-    {
-      href: "/calories",
-      label: "Calories",
-      description: "Compare your calorie expenditure to food",
-      icon: Pizza,
-      gradient: "from-green-100 to-yellow-100 dark:from-green-900/30 dark:to-yellow-900/30"
     }
   ];
 
@@ -83,7 +82,10 @@ const BentoGrid = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <item.icon className="w-8 h-8 text-black dark:text-white" />
                     <h3 className="text-lg font-bold text-black dark:text-white">
-                      {item.label}
+                      {item.label.replace(" (experimental)", "")}
+                      {item.label.includes("experimental") && (
+                        <Badge variant="secondary" className="ml-2 -translate-y-0.5">Experimental</Badge>
+                      )}
                     </h3>
                   </div>
                   <p className="text-sm text-black/70 dark:text-white/70 line-clamp-2">

@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ToggleTheme } from "./toogle-theme";
-import ProfileSelector from "./ProfileSelector"; // Import the ProfileSelector component
+import ProfileSelector from "./ProfileSelector"; 
 import YearSelector from "./YearSelector";
 import { useUser } from "@/context/UserContext";
 
@@ -43,7 +43,6 @@ export const Navbar = () => {
       {userSelected && (
         <div className="hidden lg:flex flex-1 justify-center space-x-4">
           <ProfileSelector />
-          <YearSelector />
         </div>
       )}
 
@@ -90,8 +89,7 @@ export const Navbar = () => {
 
               <div className="flex flex-col gap-4">
                 <ProfileSelector />
-                <YearSelector />
-              </div>
+               </div>
             </div>
 
             <SheetFooter className="flex-col sm:flex-col justify-start items-start">

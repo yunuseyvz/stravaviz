@@ -93,15 +93,15 @@ export default function PaceByHRZone() {
   }
 
   return (
-    <div>
-      <h2>
+    <div >
+      <h2 style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", gap: "2rem" }}>
         Daily Pace (7-Day Moving Average) for HR Range ({hrMin} – {hrMax} bpm)
       </h2>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* HR Range Sliders */}
-      <div style={{ marginBottom: "1rem" }}>
+      {/* Updated container style */}
+      <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", gap: "2rem" }}>
         <div style={{ marginBottom: "1rem" }}>
           <label style={{ display: "block", marginBottom: "0.5rem" }}>
             Minimum HR: {hrMin} bpm
@@ -142,69 +142,76 @@ export default function PaceByHRZone() {
         </div>
       </div>
 
-      {data.length === 0 && <p>No data found for this HR range.</p>}
+      {data.length === 0 && (
+        <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg border border-yellow-300" role="alert">
+          No data available for {selectedYear}.
+        </div>
+      )}
 
       {data.length > 0 && (
-        <ResponsiveContainer width="100%" height={400}>
-  <LineChart
-    data={data}
-    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-  >
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis dataKey="day" />
-    <YAxis
-      domain={yDomain}
-      tickFormatter={formatPaceTick}
-      label={{
-        value: "Pace (min/km)",
-        angle: -90,
-        position: "insideLeft",
-      }}
-    />
-    <Legend />
-    
-    {/* Invisible area to set the base (lower bound) */}
-    <Area
-      type="monotone"
-      dataKey="lowerBound"
-      stackId="1"
-      stroke="none"
-      fill="transparent"
-      isAnimationActive={false}
-    />
-    
-    {/* Shaded area representing the band between lower and upper bounds */}
-    <Area
-  type="monotone"
-  dataKey="lowerBound"
-  stackId="1"
-  stroke="none"
-  fill="rgba(0,0,0,0)"  // Use a zero-opacity color instead of "transparent"
-  isAnimationActive={false}
-/>
+        // New container to center the chart
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ResponsiveContainer width="70%" height={400}>
+            <LineChart
+              data={data}
+              margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis
+                domain={yDomain}
+                tickFormatter={formatPaceTick}
+                label={{
+                  value: "Pace (min/km)",
+                  angle: -90,
+                  position: "insideLeft",
+                }}
+              />
+              <Legend />
+              
+              {/* Invisible area to set the base (lower bound) */}
+              <Area
+                type="monotone"
+                dataKey="lowerBound"
+                stackId="1"
+                stroke="none"
+                fill="transparent"
+                isAnimationActive={false}
+              />
+              
+              {/* Shaded area representing the band between lower and upper bounds */}
+              <Area
+            type="monotone"
+            dataKey="lowerBound"
+            stackId="1"
+            stroke="none"
+            fill="rgba(0,0,0,0)"  // Use a zero-opacity color instead of "transparent"
+            isAnimationActive={false}
+          />
 
-<Area
-  type="monotone"
-  dataKey="bandDelta"
-  stackId="1"
-  stroke="none"
-  fill="#8884d8"
-  fillOpacity={0.2}
-  isAnimationActive={false}
-/>
+          <Area
+            type="monotone"
+            dataKey="bandDelta"
+            stackId="1"
+            stroke="none"
+            fill="#8884d8"
+            fillOpacity={0.2}
+            isAnimationActive={false}
+          />
 
-    
-    {/* Line for the 7-day moving average pace */}
-    <Line
-      type="monotone"
-      dataKey="movingAvgPace"
-      stroke="#8884d8"
-      dot={false}
-      name="7-Day Moving Avg Pace"
-    />
-  </LineChart>
-</ResponsiveContainer>
-
+              
+              {/* Line for the 7-day moving average pace */}
+              <Line
+                type="monotone"
+                dataKey="movingAvgPace"
+                stroke="#8884d8"
+                dot={false}
+                name="7-Day Moving Avg Pace"
+                strokeWidth={3} // thicker line
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

@@ -10,7 +10,7 @@ const YearSelector = () => {
   const { selectedYear, selectYear } = useYear();
   const [availableYears, setAvailableYears] = useState<number[]>([]);
   const pathname = usePathname(); // get current route
-  const isDisabled = pathname === "/" || pathname === "/map"; // new variable
+  const isDisabled = pathname === "/" || pathname === "/map" || pathname === "/gallery" || pathname === "/about"; // disable on home, map, and gallery
 
   const MIN_YEAR = 2019;
   const MAX_YEAR = 2025;
