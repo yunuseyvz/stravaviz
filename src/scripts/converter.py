@@ -306,42 +306,58 @@ class StravaConverter(Converter):
         fit_files = [f for f in os.listdir(self._dir_activities) if f.lower().endswith('.fit')]
 
         for f_activity in fit_files:
-            df_laps, df_points = self.fit_to_dataframes(os.path.join(self._dir_activities, f_activity))
-            md = df_acts.loc[df_acts[mapping['filename']].str.contains(f_activity)].iloc[0, :].to_dict()
-            act_id = md[mapping['activity_id']]
-            act_name = md[mapping['activity_name']]
-            act_desc = md[mapping['activity_description']]
-            act_type = md[mapping['activity_type']]
+            try:
+                # Attempt to read the FIT file and convert it to dataframes
+                df_laps, df_points = self.fit_to_dataframes(os.path.join(self._dir_activities, f_activity))
+                
+                # Get metadata from activities.csv for the current activity file
+                md = df_acts.loc[df_acts[mapping['filename']].str.contains(f_activity)].iloc[0, :].to_dict()
+                act_id = md[mapping['activity_id']]
+                act_name = md[mapping['activity_name']]
+                act_desc = md[mapping['activity_description']]
+                act_type = md[mapping['activity_type']]
 
-            if not act_name.isascii():
-                act_name = str(act_name.encode('ascii', 'ignore'))
-            if isinstance(act_desc, str) and not act_desc.isascii():
-                act_desc = str(act_desc.encode('ascii', 'ignore'))
-            if pd.isna(act_desc):
-                act_desc = None
+                # Clean non-ASCII characters if needed
+                if not act_name.isascii():
+                    act_name = str(act_name.encode('ascii', 'ignore'))
+                if isinstance(act_desc, str) and not act_desc.isascii():
+                    act_desc = str(act_desc.encode('ascii', 'ignore'))
+                if pd.isna(act_desc):
+                    act_desc = None
 
-            strava_args = {
-                'gpx_name': act_name,
-                'gpx_type': act_type,
-                'gpx_desc': act_desc,
-                'gpx_link': f"https://www.strava.com/activities/{act_id}"
-            }
+                # Prepare arguments for GPX conversion
+                strava_args = {
+                    'gpx_name': act_name,
+                    'gpx_type': act_type,
+                    'gpx_desc': act_desc,
+                    'gpx_link': f"https://www.strava.com/activities/{act_id}"
+                }
 
-            gpx = self.dataframe_to_gpx(
-                df_points=df_points,
-                col_lat='latitude',
-                col_long='longitude',
-                col_time='timestamp',
-                col_alt='altitude',
-                **strava_args
-            )
+                # Convert the dataframe to a GPX object
+                gpx = self.dataframe_to_gpx(
+                    df_points=df_points,
+                    col_lat='latitude',
+                    col_long='longitude',
+                    col_time='timestamp',
+                    col_alt='altitude',
+                    **strava_args
+                )
 
-            path_out = os.path.join(self._dir_out, f'{act_id}.gpx')
-            with open(path_out, 'w') as f:
-                f.write(gpx.to_xml())
+                # Save the GPX file to the output directory
+                path_out = os.path.join(self._dir_out, f'{act_id}.gpx')
+                with open(path_out, 'w') as f:
+                    f.write(gpx.to_xml())
+
+                if self.status_msg:
+                    print(f"Successfully processed {f_activity}")
+
+            except Exception as e:
+                # If an error occurs, print an error message and skip this file.
+                print(f"Error processing file {f_activity}: {e}. Skipping.")
+                continue
 
         if self.status_msg:
-            print(f'{len(fit_files)} FIT files have been converted to .gpx files with Strava metadata.')
+            print(f"Finished processing {len(fit_files)} files (errors were skipped).")
 
     def add_metadata_to_gpx(self):
         """Method adds Strava metadata to default GPX files (i.e. files downloaded as GPX from Strava)"""
