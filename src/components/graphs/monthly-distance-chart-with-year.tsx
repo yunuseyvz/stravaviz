@@ -170,9 +170,12 @@ const MonthlyDistanceChartWithYear = () => {
               </button>
             </div>
           </div>
-          <ResponsiveContainer width="50%" height={600}>
-            {chartType === "line" ? (
-              <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <ResponsiveContainer width="70%" height={500}>
+            {chartType === 'line' ? (
+              <LineChart
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"

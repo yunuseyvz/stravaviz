@@ -187,7 +187,7 @@ const CaloriesFoodChartWithYear = () => {
               </button>
             </div>
           </div>
-          <ResponsiveContainer width="50%" height={600}>
+          <ResponsiveContainer width="70%" height={500}>
             {chartType === 'doener' ? (
               <BarChart
                 data={dataWithDoener}

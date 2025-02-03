@@ -3,6 +3,7 @@ import DailyActivityCalendarComponent from "@/components/DailyActivityCalendar";
 import BlurFade from "@/components/ui/blur-fade";
 import Link from "next/link"; 
 import { ArrowLeft } from "lucide-react";
+import YearSelector from "@/components/YearSelector";
 
 export default function Data2() {
     return (
@@ -20,6 +21,7 @@ export default function Data2() {
                     contribution graph but for your workout achievements.
                 </p>
             </div>
+            <YearSelector   />
             <BlurFade>
                 <DailyActivityCalendarComponent />
             </BlurFade>

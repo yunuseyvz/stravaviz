@@ -3,6 +3,7 @@ import ActivityMetricPieChart from "@/components/graphs/ActivityMetricsPieChart"
 import BlurFade from "@/components/ui/blur-fade";
 import Link from "next/link"; 
 import { ArrowLeft } from "lucide-react"; 
+import YearSelector from "@/components/YearSelector";
 
 export default function data1() {
   return (
@@ -13,13 +14,14 @@ export default function data1() {
             <ArrowLeft className="mr-1" /> Back
           </Link>
         </div>
-        <h1 className="text-3xl font-bold mb-4">Total Activity Time</h1>
+        <h1 className="text-3xl font-bold mb-4">Total Activity Time & Distance</h1>
         <p className="text-gray-600 dark:text-gray-300">
           View your activity distribution across different types of exercises. 
           This pie chart breaks down the total time spent on each activity type, 
           helping you understand your workout preferences and balance.
         </p>
       </div>
+      <YearSelector/>
       <div className="w-full max-w-2xl">
         <BlurFade>
           <ActivityMetricPieChart />
