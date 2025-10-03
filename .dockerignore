@@ -1,0 +1,37 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next
+out
+
+# Misc
+.DS_Store
+*.pem
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Environment
+.env*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Notebooks & Development
+misc/notebooks
+*.ipynb
+
+# README
+README.md
+
+# Keep all data folders - they will be copied to the image
+# !src/data/**
+# !data/**

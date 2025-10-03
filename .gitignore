@@ -44,11 +44,8 @@ next-env.d.ts
 /misc/old
 
 
-data
-
 src/data/raw
 
 gpxconverter
 
-/public/media
 
