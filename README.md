@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+![StravaViz Banner](public/banner.png)
 
-## Getting Started
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-stravaviz.yuemya.de-blue)](https://stravaviz.yuemya.de)
 
-First, run the development server:
+**StravaViz - An Interactive Data Visualization Tool**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project was created for the practical project of the course “Information Visualization” (Winter term 2024/25) at LMU Munich, by Prof. Andreas Butz. Course page: https://www.medien.ifi.lmu.de/lehre/ws2425/iv/
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Live Demo**
+- Explore the project at https://stravaviz.yuemya.de
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**What it is**
+- A student project that explores how personal fitness data from Strava can be visualized to tell meaningful stories about activity habits, progress, and routes.
+- It takes a standard Strava data export and presents it through several easy-to-browse views.
+- In this case we took the data export from Prof. Butz and one of our Team members.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**What you can see**
+- Interactive map showing activity routes.
+- Calendars and timelines for daily and monthly activity patterns.
+- Simple performance summaries: distance, time, elevation, and calories over time.
+- Heart rate vs. pace views to get an intuition for training intensity and efficiency.
+- Bonus: A small gallery of images by Prof. Butz related to his activities.
 
-## Learn More
+**How to explore**
+- Open the page, pick an athlete, and switch between views like “Map”, “Calendar”, “Performance”, and “Heart–Speed”.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Acknowledgements**
+- Guided by Prof. Andreas Butz in the Information Visualization course at LMU Munich.
+- Thanks to the Moritz and Prof. Butz for making their fitness data accessible.
