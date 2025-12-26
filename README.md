@@ -25,4 +25,4 @@ This project was created for the practical project of the course “Information 
 - Open the page, pick an athlete, and switch between views like “Map”, “Calendar”, “Performance”, and “Heart–Speed”.
 
 **Acknowledgements**
-- Thanks to Moritz and Prof. Butz for providing their fitness data.
+- Thanks to [@moreichelt](https://github.com/moreichelt) and Prof. Butz for providing their fitness data.
