@@ -25,5 +25,4 @@ This project was created for the practical project of the course “Information 
 - Open the page, pick an athlete, and switch between views like “Map”, “Calendar”, “Performance”, and “Heart–Speed”.
 
 **Acknowledgements**
-- Guided by Prof. Andreas Butz in the Information Visualization course at LMU Munich.
-- Thanks to the Moritz and Prof. Butz for making their fitness data accessible.
+- Thanks to Moritz and Prof. Butz for providing their fitness data.
